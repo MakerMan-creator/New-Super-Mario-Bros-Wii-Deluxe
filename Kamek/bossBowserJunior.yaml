@@ -1,0 +1,28 @@
+---
+#Replaces Sprite 108
+
+source_files: [../src/bossBowserJunior.cpp, ../src/bossJuniorsShell.cpp]
+hooks:
+  - name: LilBowWowBuild
+    type: add_func_pointer
+    src_addr_pal: 0x80ADA998
+    target_func: 'daBowserJr::build()'
+
+  - name: LilBowWowSpriteFileInfo
+    type: add_func_pointer
+    src_addr_pal: 0x8031acfc
+    target_func: 'BJarcNameList'
+    # 0x8031AB4C + sprite num * 0x4 == offset
+
+#Replaces Sprite 421
+
+  - name: customshellBuild
+    type: add_func_pointer
+    src_addr_pal: 0x80958B58
+    target_func: 'daCustomShell::build()'
+
+  - name: customshellSpriteFileInfo
+    type: add_func_pointer
+    src_addr_pal: 0x8031b1e0
+    target_func: 'CSarcNameList'
+    # 0x8031AB4C + sprite num * 0x4 == offset
