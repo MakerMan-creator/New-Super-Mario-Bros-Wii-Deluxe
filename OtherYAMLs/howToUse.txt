@@ -1,0 +1,2 @@
+Okay. So when you download the source code, there will be two YAML files.
+Put both in the Kamek folder.
