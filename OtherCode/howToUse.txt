@@ -1,1 +1,0 @@
-Put the following source code into the folder "Kamek/src".
