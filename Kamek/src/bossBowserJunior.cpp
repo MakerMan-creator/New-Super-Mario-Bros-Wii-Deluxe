@@ -3,7 +3,7 @@
 #include <g3dhax.h>
 #include <sfx.h>
 #include "boss.h"
-#include "bowserjr.h" // Both classes for these are here
+#include "bowserjr.h" // Both classes for the boss's actors are here
 
 const char* BJarcNameList [] = { 
 	"koopaJr",
@@ -38,7 +38,6 @@ daBowserJr* daBowserJr::build() {
 	void *buffer = AllocFromGameHeap1(sizeof(daBowserJr));
 	return new(buffer) daBowserJr;
 }
-
 
 int daBowserJr::onCreate() {
 	allocator.link(-1, GameHeaps[0], 0, 0x20);
@@ -162,9 +161,17 @@ void daBowserJr::beginState_Intro() {;
 }
 void daBowserJr::executeState_Intro() {
 	calculateTileCollisions();
+
+    if (this->timer == 1) { 
+    	SFX intro = (isHardBoss) ? SE_VOC_JR_PROV1 : SE_VOC_JR_PROV2;
+    	PlaySound(this, intro); 
+    }
+
 	if (animationChr.isAnimationDone()) {
 		doStateChange(&StateID_Chase);
 	}
+
+	this->timer++;
 }
 void daBowserJr::endState_Intro() {
 	dStage32C_c::instance->freezeMarioBossFlag = 0;
@@ -188,8 +195,11 @@ void daBowserJr::executeState_Attack() {
 	if (animationChr.getCurrentFrame() == 28) {
 
 		PlaySound(this, SE_BOSS_JR_KICK);
+		PlaySound(this, SE_VOC_JR_CS_FALL_OUT_CASTLE);
+
 		OSReport("Here's a Koopa shell for ya!\n");
 
+        // Creates the custom Bowser Jr. shell. I had to do that to make a moving shell, okay?
         this->koopa = CreateActor(205, 0x2, (Vec){(direction) ? (pos.x - 4) : (pos.x + 4), pos.y, pos.z}, 0, 0);
 
         this->koopa->scale.x = 1.0;
@@ -232,10 +242,7 @@ void daBowserJr::executeState_Chase() {
 
 	this->facing = dSprite_c__getXDirectionOfFurthestPlayerRelativeToVEC3(this, this->pos);
 
-	if ((facing != direction) || (ret)) {
-		doStateChange(&StateID_Turn);
-	}
-
+	
 	if (collMgr.isOnTopOfTile()) {
 		this->falling = false;
 
@@ -249,6 +256,10 @@ void daBowserJr::executeState_Chase() {
 			pos.x = (direction) ? pos.x + a : pos.x - a;
 			doStateChange(&StateID_Turn);
 		}
+	}
+
+	if ((facing != direction) || (ret)) {
+		doStateChange(&StateID_Turn);
 	}
 }
 void daBowserJr::endState_Chase() {}
@@ -274,10 +285,17 @@ void daBowserJr::endState_Turn() {}
 
 void daBowserJr::beginState_Damage() {
 	this->timer = 0;
+
     const char* a = (health > 0) ? "shock" : "clown_damage_s";
+
 	OSReport("OW!\n");
     bindAnimChr_and_setUpdateRate(a, 1, 0.0, 1.0);
+
     if (this->fireballHits) { this->fireballHits = 0; }
+
+	if (this->health > 0) {
+		PlaySound(this, SE_VOC_JR_DAMAGE_L);
+	}
 }
 void daBowserJr::executeState_Damage() {
 	if (animationChr.getCurrentFrame() >= 51) {
@@ -292,6 +310,9 @@ void daBowserJr::endState_Damage() { this->timer = 0; }
 void daBowserJr::beginState_Outro() {
 	this->timer = 0;
 	this->speed.y = 8.0;
+
+    PlaySound(this, SE_VOC_JR_DAMAGE_L_LAST);
+
 	OSReport("NOOOOO!! Beaten by you AGAIN?! Come on!\n");
 
 	OutroSetup(this);
@@ -306,8 +327,6 @@ void daBowserJr::executeState_Outro() {
 		this->animationChr.setCurrentFrame(0.0);
 	}
 
-	this->rot.x -= 6;
-
 	float rect[] = {0.0, 0.0, 38.0, 38.0};
 	int gone = this->outOfZone(this->pos, (float*)&rect, this->currentZoneID);
 
@@ -315,7 +334,7 @@ void daBowserJr::executeState_Outro() {
 		this->speed.y = 0.0;
 
 		if (!this->hasAlreadyPlayed) {
-			// So this function doesn't lag the game
+			// So this function doesn't lag the game, because of the fx spawned
 		    BossExplode(this, &this->pos);
 			this->hasAlreadyPlayed = true;
 		}
@@ -335,7 +354,9 @@ void daBowserJr::executeState_Outro() {
 			PlaySoundWithFunctionB4(SoundRelatedClass, &handle, STRM_BGM_SHIRO_BOSS_CLEAR, 1);
 			PlayerVictoryCries(this);   
 		}
+
 		this->timer++;
+		
 		return;
 	}
 }
