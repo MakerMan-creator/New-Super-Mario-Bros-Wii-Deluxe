@@ -147,7 +147,7 @@ int daBowserJr::onDraw() {
 	return true;
 }
 
-void daBowserJr::beginState_Intro() {;
+void daBowserJr::beginState_Intro() {
     this->timer = 0;
 	
 	StopBGMMusic();
@@ -163,8 +163,14 @@ void daBowserJr::executeState_Intro() {
 	calculateTileCollisions();
 
     if (this->timer == 1) { 
+    	this->times++;
     	SFX intro = (isHardBoss) ? SE_VOC_JR_PROV1 : SE_VOC_JR_PROV2;
-    	PlaySound(this, intro); 
+    	if (this->times >= 2) {
+    		if (!this->playSoundOnce) {
+    			PlaySound(this, intro);
+    			this->playSoundOnce = true;
+    		}
+    	}
     }
 
 	if (animationChr.isAnimationDone()) {
