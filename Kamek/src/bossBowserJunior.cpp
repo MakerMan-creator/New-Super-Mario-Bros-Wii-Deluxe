@@ -94,6 +94,8 @@ int daBowserJr::onCreate() {
 	this->scale.z = 1.2; 
 
 	this->health = 15;
+	this->times = 0;
+	this->playSoundOnce = false;
 
 	rot.y = (direction) ? 0x2800 : 0xD800;
 
@@ -130,6 +132,12 @@ int daBowserJr::onExecute() {
 		    this->timer = 0;
             doStateChange(&StateID_Attack);
 	    }
+	}
+
+	if ((s == &StateID_Chase) || (s == &StateID_Turn)) {
+		if ((animationChr.getCurrentFrame() == 7) || (animationChr.getCurrentFrame() == 26)) {
+			PlaySound(this, SE_EMY_KANIBO_THROW);
+		}
 	}
 
 	this->timer++;
@@ -304,9 +312,10 @@ void daBowserJr::beginState_Damage() {
 	}
 }
 void daBowserJr::executeState_Damage() {
-	if (animationChr.getCurrentFrame() >= 51) {
+	if (animationChr.getCurrentFrame() >= 78) {
 		doStateChange(&StateID_Chase);
 	}
+
 	if (this->health <= 0) {
 		doStateChange(&StateID_Outro);
 	}
