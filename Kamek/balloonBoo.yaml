@@ -1,0 +1,16 @@
+---
+#Replaces Actor 367 AC_AUTOSCROOL_SWICH (Sprite 321)
+
+
+source_files: [../src/balloonBoo.cpp]
+hooks:
+  - name: BalonBooBuild
+    type: add_func_pointer
+    src_addr_pal: 0x80950FF0
+    target_func: 'dBalloonBoo_c::build()'
+
+  - name: BalonBooSpriteFileInfo
+    type: add_func_pointer
+    src_addr_pal: 0x8031b050
+    target_func: 'BalloonBooFileList'
+    # 0x8031AB4C + sprite num * 0x4 == offset
