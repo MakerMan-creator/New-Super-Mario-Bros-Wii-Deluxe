@@ -23,7 +23,6 @@ public:
 	float target[2];
     u8 direction;
     int still;
-    nw4r::snd::SoundHandle *handle;
 
 	void updateModelMatrices();
 	void bindAnimChr_and_setUpdateRate(const char* name, int unk, float unk2, float rate);
@@ -199,7 +198,7 @@ int dBalloonBoo_c::onExecute() {
 		this->cackleTimer++;
 	
 		if (this->cackleTimer > 770) {
-	        handle = PlaySound(this, SE_EMY_TERESA);
+	        PlaySound(this, SE_EMY_TERESA);
 	        this->cackleTimer = 0;
 		}
 	}
@@ -230,7 +229,7 @@ void dBalloonBoo_c::executeState_Inflate() {
 	bool maxGrown = this->Grow(5.0f);
 
 	if (!maxGrown) {
-		handle = PlaySound(this, SE_EMY_HUHU_BREATH_IN);
+		PlaySound(this, SE_EMY_HUHU_BREATH_IN);
 	}
 }
 void dBalloonBoo_c::endState_Inflate() {}
@@ -240,7 +239,7 @@ void dBalloonBoo_c::executeState_Deflate() {
 	bool minGrown = this->Shrink(1.1f);
 
 	if (!minGrown) {
-		handle = PlaySound(this, SE_EMY_HUHU_BREATH_OUT);
+		PlaySound(this, SE_EMY_HUHU_BREATH_OUT);
 	}
 
 	if (player) {
@@ -282,16 +281,14 @@ void dBalloonBoo_c::executeState_Deflate() {
 
 	this->UpdateObjectPosBasedOnSpeedValuesReal();
 }
-void dBalloonBoo_c::endState_Deflate() {
-	if (handle) {
-		handle->Stop(0);
-	}
-}
+void dBalloonBoo_c::endState_Deflate() {}
 
 void dBalloonBoo_c::beginState_Die() {
     this->speed.x = ((direction) ? 1.5 : -1.5);
     this->speed.y = 2.5;
+
 	PlaySound(this, SE_EMY_BIG_TERESA_DEAD);
+
 	this->removeMyActivePhysics();
 }
 void dBalloonBoo_c::executeState_Die() {
@@ -328,9 +325,6 @@ void dBalloonBoo_c::playerCollision(ActivePhysics *apThis, ActivePhysics *apOthe
 	bool dBalloonBoo_c::collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
 	bool dBalloonBoo_c::collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
 	bool dBalloonBoo_c::collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther) {
-		dEn_c *rollin = ((dEn_c*)apOther->owner);
-		rollin->kill();
-
 		return false;
 	}  
 	bool dBalloonBoo_c::collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
