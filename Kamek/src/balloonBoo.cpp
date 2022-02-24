@@ -258,19 +258,17 @@ void dBalloonBoo_c::executeState_Deflate() {
 			this->speed.x = ((this->pos.x < target[0]) ? ((target[0] + this->pos.x) / divider) : ((target[0] - this->pos.x) / divider));  
 			this->speed.y = ((this->pos.y < target[1]) ? ((target[1] - this->pos.y) / divider) : ((target[1] + this->pos.y) / divider)); 
 
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < 8; i++)
 			{
-                const float dividerTwo = 2.0f;
+                const float divTwo = 1.6f;
 
-				if ((speed.y < -dividerTwo) || (speed.y > dividerTwo)) {
+				if ((speed.y < -divTwo) || (speed.y > divTwo)) {
 				    speed.y /= 2.2;
-				    continue;
-			    } else if ((speed.x < -dividerTwo) || (speed.x > dividerTwo)) {
-				    speed.x /= 2.2;
-				    continue;
 			    }
-
-			    break;
+			    
+			    if ((speed.x < -divTwo) || (speed.x > divTwo)) {
+				    speed.x /= 2.2;
+			    }
 			}  
 		} else {
 			this->speed.y = this->speed.x = 0.0;
