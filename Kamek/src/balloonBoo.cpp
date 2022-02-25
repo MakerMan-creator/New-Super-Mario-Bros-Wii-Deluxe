@@ -23,12 +23,15 @@ public:
 	float target[2];
     u8 direction;
     int still;
+	float maxSpeed = 0.0;
 
 	void updateModelMatrices();
 	void bindAnimChr_and_setUpdateRate(const char* name, int unk, float unk2, float rate);
 
 	bool Shrink(float scale);
 	bool Grow(float scale);
+
+	void setUpTheseDamnEffects();
 
 	static dBalloonBoo_c* build();
 
@@ -53,6 +56,8 @@ public:
 	m3d::mdl_c bodyModel;
 	m3d::anmChr_c animationChr;
 	nw4r::g3d::ResFile resFile;
+	nw4r::g3d::ResAnmTexSrt resTexSrt;
+	m3d::mdl_c fogModel;
 
 	USING_STATES(dBalloonBoo_c);
 	DECLARE_STATE(Inflate);
@@ -63,6 +68,27 @@ public:
 CREATE_STATE(dBalloonBoo_c, Inflate);
 CREATE_STATE(dBalloonBoo_c, Deflate);
 CREATE_STATE(dBalloonBoo_c, Die);
+
+void dBalloonBoo_c::setUpTheseDamnEffects() {
+    allocator.link(-1, GameHeaps[0], 0, 0x20);
+
+	resFile.data = getResource("teresa", "g3d/teresa.brres");
+	nw4r::g3d::ResMdl mdl = this->resFile.GetResMdl("teresa_otherB");
+	bodyModel.setup(mdl, &allocator, 0x224, 1, 0);
+
+	nw4r::g3d::ResAnmTexSrt anmSrt = this->resFile.GetResAnmTexSrt("fog");
+	this->resTexSrt = anmSrt;
+
+	nw4r::g3d::ResMdl fogMdl = this->resFile.GetResMdl("fog");
+	this->fogModel.setup(fogMdl, &allocator, 0x224, 1, 0);
+	SetupTextures_Enemy(&this->fogModel, 0);
+
+	SetupTextures_Enemy(&bodyModel, 0);
+	nw4r::g3d::ResAnmChr anmChr = this->resFile.GetResAnmChr("wait_otherB");
+	this->animationChr.setup(mdl, anmChr, &this->allocator, 0);
+
+	allocator.unlink();
+}
 
 void dBalloonBoo_c::updateModelMatrices() {
 	matrix.translation(pos.x, pos.y, pos.z);
@@ -107,18 +133,11 @@ dBalloonBoo_c* dBalloonBoo_c::build() {
 }
 
 int dBalloonBoo_c::onCreate() {
-	allocator.link(-1, GameHeaps[0], 0, 0x20);
-
-	resFile.data = getResource("teresa", "g3d/teresa.brres");
-	nw4r::g3d::ResMdl mdl = this->resFile.GetResMdl("teresa_otherB");
-	bodyModel.setup(mdl, &allocator, 0x224, 1, 0);
-	SetupTextures_Player(&bodyModel, 0);
-	nw4r::g3d::ResAnmChr anmChr = this->resFile.GetResAnmChr("wait_otherB");
-	this->animationChr.setup(mdl, anmChr, &this->allocator, 0);
-
-	allocator.unlink(); 
+	this->setUpTheseDamnEffects(); 
 
 	this->still = ((this->settings & 0x000F0000) >> 16);
+	int set = this->settings >> 28 & 0xF;
+	this->maxSpeed = ((float)(set / 2));
 
 	HitMeBaby.xDistToCenter = 0.0; 
 	HitMeBaby.yDistToCenter = 11.0; 
@@ -260,7 +279,7 @@ void dBalloonBoo_c::executeState_Deflate() {
 
 			for (int i = 0; i < 8; i++)
 			{
-                const float divTwo = 1.6f;
+                const float divTwo = (this->maxSpeed + 0.1f);
 
 				if ((speed.y < -divTwo) || (speed.y > divTwo)) {
 				    speed.y /= 2.2;
