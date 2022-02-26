@@ -1,7 +1,6 @@
 #include "boss.h"
 
 
-
 void DamagePlayer(dEn_c *actor, ActivePhysics *apThis, ActivePhysics *apOther) {
 
 	actor->dEn_c::playerCollision(apThis, apOther);
@@ -22,24 +21,36 @@ void DamagePlayer(dEn_c *actor, ActivePhysics *apThis, ActivePhysics *apOther) {
 }
 
 int AbsVal(int value) {
-	if (value < 1) {
-		value *= -1;
+	// "AbsVal" is short for "absolute value"
+	if (value < 0) {
+		value = -value;
 	}
+
 	return value;
 }
 
 int OneDigit(int value) {
-	for (int i = 0; i < 30; i++) {
+	for (int i = 0; i < 30; i++) 
+	{
 		if (value < 10) {
 			break;
-		} else {
-			value /= 10;
 		}
+
+		value /= 10;
 	}
+
 	if (value >= 10) {
-		OneDigit(value);
+		OneDigit(value); // Calling the function again, just in case..
 	}
+	
 	return value;
+}
+
+// Use ONLY for variables, and AbsVal(int) for both variables and regular int values
+void AbsValRef(int& ref) {
+	if (ref < 0) {
+		ref = -ref;
+	}
 }
 
 void SetupKameck(daBoss *actor, daKameckDemo *Kameck) {

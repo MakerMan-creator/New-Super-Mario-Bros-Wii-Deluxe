@@ -309,14 +309,11 @@ void dBalloonBoo_c::beginState_Die() {
 	this->removeMyActivePhysics();
 }
 void dBalloonBoo_c::executeState_Die() {
-	for (int i = 0; i < 100; i++)
-	{
-		this->rot.x = ((direction) ? (this->rot.x + 0x200) : (this->rot.x - 0x200));
-	}
+	this->rot.x = ((direction) ? (this->rot.x + 0x200) : (this->rot.x - 0x200));
 
 	this->HandleXSpeed();
 	this->HandleYSpeed();
-	this->doSpriteMovement();
+	this->UpdateObjectPosBasedOnSpeedValuesReal();
 
 	this->speed.y -= 0.125;
 }
@@ -348,12 +345,15 @@ void dBalloonBoo_c::playerCollision(ActivePhysics *apThis, ActivePhysics *apOthe
 	bool dBalloonBoo_c::collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
 	bool dBalloonBoo_c::collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther) {
 		const float newScale = 1.75f;
+
         if ((this->scale.x <= newScale) && (this->scale.y <= newScale) && (this->scale.z <= newScale)) {
         	StageE4::instance->spawnCoinJump(pos, 0, 3, 0);
+        	
         	doStateChange(&StateID_Die);
 
         	return true;
         }
+
 		return false;
 	}  
 	bool dBalloonBoo_c::collisionCat14_YoshiFire(ActivePhysics *apThis, ActivePhysics *apOther) { return true; } 

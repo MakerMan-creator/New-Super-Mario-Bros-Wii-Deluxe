@@ -5,7 +5,7 @@
 #include "boss.h"
 #include "bowserjr.h" // Both classes for the boss's actors are here
 
-const char* BJarcNameList [] = { 
+const char* BJarcNameList[] = { 
 	"koopaJr",
 	"nokonokoA",
 	NULL
@@ -61,7 +61,7 @@ int daBowserJr::onCreate() {
 	HitMeBaby.category1 = 0x3; 
 	HitMeBaby.category2 = 0x0; 
 	HitMeBaby.bitfield1 = 0x4F; 
-	HitMeBaby.bitfield2 = 0xFFFFEFAE; 
+	HitMeBaby.bitfield2 = 0xFFFE6FAE; 
 	HitMeBaby.unkShort1C = 0; 
 	HitMeBaby.callback = &dEn_c::collisionCallback; 
 	this->aPhysics.initWithStruct(this, &HitMeBaby); 
@@ -228,7 +228,7 @@ void daBowserJr::executeState_Attack() {
 		troopa->direction = this->direction;
 
 		if (isHardBoss) {
-			troopa->posAdd = 1.8;
+			troopa->posAdd = 1.9;
 		}
 
 	}
@@ -303,7 +303,7 @@ void daBowserJr::beginState_Damage() {
     const char* a = (health > 0) ? "shock" : "clown_damage_s";
 
 	OSReport("OW!\n");
-    bindAnimChr_and_setUpdateRate(a, 1, 0.0, 1.0);
+    bindAnimChr_and_setUpdateRate(a, 1, 0.0, 0.9);
 
     if (this->fireballHits) { this->fireballHits = 0; }
 

@@ -43,6 +43,7 @@ void PlayerVictoryCries(daBoss* actor);
 void BossGoalForAllPlayers();
 int AbsVal(int value);
 int OneDigit(int value);
+void AbsValRef(int& ref);
 
 #endif
 
