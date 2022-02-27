@@ -139,6 +139,8 @@ int dBalloonBoo_c::onCreate() {
 	int set = this->settings >> 28 & 0xF;
 	this->maxSpeed = ((float)(set / 2));
 
+	this->pos.z += 1.5;
+
 	HitMeBaby.xDistToCenter = 0.0; 
 	HitMeBaby.yDistToCenter = 11.0; 
 	HitMeBaby.xDistToEdge = 45.0; 
@@ -293,9 +295,7 @@ void dBalloonBoo_c::executeState_Deflate() {
 			this->speed.y = this->speed.x = 0.0;
 		}
 	}
-
-	// OSReport("(My speed: (%f, %f), My pos: (%f, %f))\n", speed.x, speed.y, pos.x, pos.y);
-
+	
 	this->UpdateObjectPosBasedOnSpeedValuesReal();
 }
 void dBalloonBoo_c::endState_Deflate() {}
@@ -319,10 +319,14 @@ void dBalloonBoo_c::executeState_Die() {
 }
 void dBalloonBoo_c::endState_Die() {}
 
+extern "C" void *EN_LandbarrelPlayerCollision(dEn_c* t, ActivePhysics *apThis, ActivePhysics *apOther);
+
 void dBalloonBoo_c::playerCollision(ActivePhysics *apThis, ActivePhysics *apOther) {
+    EN_LandbarrelPlayerCollision(this, apThis, apOther);
 	DamagePlayer(this, apThis, apOther);
 }
 	void dBalloonBoo_c::yoshiCollision(ActivePhysics *apThis, ActivePhysics *apOther) {
+        EN_LandbarrelPlayerCollision(this, apThis, apOther);
 	    DamagePlayer(this, apThis, apOther);
     }
 
