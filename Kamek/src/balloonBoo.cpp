@@ -24,6 +24,7 @@ public:
     u8 direction;
     int still;
 	float maxSpeed = 0.0;
+	int shootsIce;
 
 	void updateModelMatrices();
 	void bindAnimChr_and_setUpdateRate(const char* name, int unk, float unk2, float rate);
@@ -138,6 +139,8 @@ int dBalloonBoo_c::onCreate() {
 	this->still = ((this->settings & 0x000F0000) >> 16);
 	int set = this->settings >> 28 & 0xF;
 	this->maxSpeed = ((float)(set / 2));
+
+	this->shootsIce = this->settings >> 12 & 0xF;
 
 	this->pos.z += 1.5;
 
@@ -281,15 +284,30 @@ void dBalloonBoo_c::executeState_Deflate() {
 
 			for (int i = 0; i < 8; i++)
 			{
-                const float divTwo = (this->maxSpeed + 0.1f);
+				if (scale.x > 1.1) {
+                    const float divTwo = (this->maxSpeed + 0.1f);
 
-				if ((speed.y < -divTwo) || (speed.y > divTwo)) {
-				    speed.y /= 2.2;
-			    }
+					if ((speed.y < -divTwo) || (speed.y > divTwo)) {
+				        speed.y /= 2.2;
+			        }
 			    
-			    if ((speed.x < -divTwo) || (speed.x > divTwo)) {
-				    speed.x /= 2.2;
-			    }
+			        if ((speed.x < -divTwo) || (speed.x > divTwo)) {
+				        speed.x /= 2.2;
+			        }
+				} else {
+					const float divTwo = (this->maxSpeed);
+
+                    for (int j = 0; j < 5; j++)
+                    {
+					    if ((speed.y < -divTwo) || (speed.y > divTwo)) {
+				            speed.y /= 1.5;
+			            }
+			    
+			            if ((speed.x < -divTwo) || (speed.x > divTwo)) {
+				            speed.x /= 2.2;
+			            }
+					}
+				}
 			}  
 		} else {
 			this->speed.y = this->speed.x = 0.0;
