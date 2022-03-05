@@ -96,8 +96,8 @@ void dThunderCloud::powBlockActivated(bool isNotMPGP) { }
 		if (this->counter_504[apOther->owner->which_player]) {
 			if (apThis->info.category2 == 0x9) {
 				int p = CheckExistingPowerup(apOther->owner);
-				if (p != 3) {	// Powerups - 0 = small; 1 = big; 2 = fire; 3 = mini; 4 = prop; 5 = peng; 6 = ice; 7 = hammer
-					dAcPy_c__ChangePowerupWithAnimation(apOther->owner, 3);
+				if (p/* != 3*/) {	// Powerups - 0 = small; 1 = big; 2 = fire; 3 = mini; 4 = prop; 5 = peng; 6 = ice; 7 = hammer
+					dAcPy_c__ChangePowerupWithAnimation(apOther->owner, 0);
 				}
 				else { dAcPy_vf3F4(apOther->owner, this, 9); }
 			}
