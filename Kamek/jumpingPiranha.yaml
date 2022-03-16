@@ -1,0 +1,16 @@
+---
+#Replaces Actor 555 AC_WATER_BUBBLE_CANNON (Sprite 328)
+
+
+source_files: [../src/jumpingPiranha.cpp]
+hooks:
+  - name: daEnWorldPakkun_cBuild
+    type: add_func_pointer
+    src_addr_pal: 0x8097FE80
+    target_func: 'daEnWorldPakkun_c::build()'
+
+  - name: daEnWorldPakkun_cSpriteFileInfo
+    type: add_func_pointer
+    src_addr_pal: 0x8031b06c
+    target_func: 'JPPfileList'
+    # 0x8031AB4C + sprite num * 0x4 == offset
