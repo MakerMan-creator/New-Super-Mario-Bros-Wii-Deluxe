@@ -119,6 +119,7 @@ int daEnWorldPakkun_c::onCreate() {
 	doStateChange(&StateID_In);
 
 	this->inity = this->pos.y;
+	this->pos.x++;
 
 	this->onExecute();
 
@@ -188,7 +189,7 @@ void daEnWorldPakkun_c::executeState_Out() {
 	HandleYSpeed();
 	UpdateObjectPosBasedOnSpeedValuesReal();
 
-	this->speed.y = ((speed.y <= -0.0078125) ? (-0.0078125) : (this->speed.y - 0.0078125));
+	this->speed.y = ((speed.y <= -0.009) ? (-0.009) : (this->speed.y - 0.009));
 
 	if (this->pos.y <= this->inity) {
 		this->pos.y = this->inity;
@@ -199,16 +200,18 @@ void daEnWorldPakkun_c::executeState_Out() {
 void daEnWorldPakkun_c::endState_Out() {}
 
 void daEnWorldPakkun_c::beginState_Death() {
-	this->speed.y = 4.0;
-	this->removeMyActivePhysics();
+	
 }
 void daEnWorldPakkun_c::executeState_Death() {
-	HandleXSpeed();
-	HandleYSpeed();
-	UpdateObjectPosBasedOnSpeedValuesReal();
-
-	this->speed.x = (float)((float)this->deathDirection * 1.3);
-    this->speed.y -= 0.25;
+	this->removeMyActivePhysics();
+	PlaySound(this, SE_EMY_PAKKUN_DOWN);
+	PlaySound(this, SE_EMY_DOWN);
+	S16Vec nullRot = {0,0,0};
+	Vec oneVec = {1.0f, 1.0f, 1.0f};
+	SpawnEffect("Wm_mr_cmnsndlandsmk", 0, &pos, &nullRot, &oneVec);
+	SpawnEffect("Wm_en_landsmoke", 0, &pos, &nullRot, &oneVec);
+	SpawnEffect("Wm_en_sndlandsmk_s", 0, &pos, &nullRot, &oneVec);
+	this->Delete(1);
 }
 void daEnWorldPakkun_c::endState_Death() {}
 
@@ -221,7 +224,7 @@ void daEnWorldPakkun_c::playerCollision(ActivePhysics *apThis, ActivePhysics *ap
 
 	bool daEnWorldPakkun_c::collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther) {
 		dStageActor_c *obj = apOther->owner;
-        this->deathDirection = (int)(obj->pos.x > this->pos.x);
+        this->deathDirection = (((int)(obj->pos.x > this->pos.x)) ^ 1);
 
 		doStateChange(&StateID_Death);
 
