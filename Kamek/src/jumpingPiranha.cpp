@@ -118,7 +118,6 @@ int daEnWorldPakkun_c::onCreate() {
 
 	doStateChange(&StateID_In);
 
-	rot.y = 0xEA20;
 	this->inity = this->pos.y;
 
 	this->onExecute();
@@ -184,7 +183,7 @@ void daEnWorldPakkun_c::beginState_Out() {
 		}
 	}
 
-	this->speed.y = 3.4;
+	this->speed.y = 6.2;
 }
 void daEnWorldPakkun_c::executeState_Out() {
 	HandleXSpeed();
