@@ -93,8 +93,8 @@ int daEnWorldPakkun_c::onCreate() {
 
 	allocator.unlink(); 
 
-	this->spitsFire = (settings >> 24 & 0xF);
-	this->fireballs = (((settings >> 20 & 0xF) % 4) + 1);
+	this->spitsFire = (settings >> 24 & 0xF); // Nybble 6
+	this->fireballs = (((settings >> 20 & 0xF) % 4) + 1); // nybble 7
 
 	this->scale.x = 1.0; 
 	this->scale.y = 1.0; 
@@ -176,9 +176,7 @@ void daEnWorldPakkun_c::beginState_Out() {
 				fire->scale.y /= 1.3;
 				fire->scale.z /= 1.3;
 
-				fire->speed.y = 2.8;
-
-				fire->speed.x = ((i % 2) == 1) ? -1.1 : 1.1;
+				fire->speed.x = ((i % 2) == 1) ? -1.2 : 1.2;
 			}
 		}
 	}
