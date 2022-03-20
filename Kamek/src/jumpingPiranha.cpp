@@ -15,10 +15,11 @@ public:
 	int onDraw();
 
     int timer = 0;
-	char spitsFire;
+	char triggers;
 	int fireballs;
-	float inity;
 	int deathDirection;
+	float inity;
+	u8 event;
 
 	void updateModelMatrices();
 	void bindAnimChr_and_setUpdateRate(const char* name, int unk, float unk2, float rate);
@@ -93,8 +94,8 @@ int daEnWorldPakkun_c::onCreate() {
 
 	allocator.unlink(); 
 
-	this->spitsFire = (settings >> 24 & 0xF); // Nybble 6
-	this->fireballs = (((settings >> 20 & 0xF) % 4) + 1); // nybble 7
+	this->triggers = ((settings >> 24 & 0xF) % 2); // Nybble 6
+	this->event = (u8)((settings >> 20 & 0xF) - 1); // nybble 7
 
 	this->scale.x = 1.0; 
 	this->scale.y = 1.0; 
@@ -167,21 +168,6 @@ void daEnWorldPakkun_c::executeState_In() {
 void daEnWorldPakkun_c::endState_In() { this->timer = 0; }
 
 void daEnWorldPakkun_c::beginState_Out() {
-	if (this->spitsFire) {
-        for (int i = 0; i < this->fireballs; i++)
-		{
-			dStageActor_c *fire = CreateActor(282, 0x2, pos, 0, 0);
-
-			if (fire) {
-				fire->scale.x /= 1.3;
-				fire->scale.y /= 1.3;
-				fire->scale.z /= 1.3;
-
-				fire->speed.x = ((i % 2) == 1) ? -1.2 : 1.2;
-			}
-		}
-	}
-
 	this->speed.y = 6.2;
 }
 void daEnWorldPakkun_c::executeState_Out() {
@@ -200,17 +186,27 @@ void daEnWorldPakkun_c::executeState_Out() {
 void daEnWorldPakkun_c::endState_Out() {}
 
 void daEnWorldPakkun_c::beginState_Death() {
-	
+	if (this->triggers) {
+		bool active = dFlagMgr_c::instance->active(this->event);
+
+	    if (!active) {
+		    dFlagMgr_c::instance->set(this->event, 0, true, false, false);
+	    }
+	}
 }
 void daEnWorldPakkun_c::executeState_Death() {
 	this->removeMyActivePhysics();
-	PlaySound(this, SE_EMY_PAKKUN_DOWN);
+
+	PlaySound(this, SE_EMY_BLOW_PAKKUN_DOWN);
 	PlaySound(this, SE_EMY_DOWN);
+
 	S16Vec nullRot = {0,0,0};
 	Vec oneVec = {1.0f, 1.0f, 1.0f};
+
 	SpawnEffect("Wm_mr_cmnsndlandsmk", 0, &pos, &nullRot, &oneVec);
 	SpawnEffect("Wm_en_landsmoke", 0, &pos, &nullRot, &oneVec);
 	SpawnEffect("Wm_en_sndlandsmk_s", 0, &pos, &nullRot, &oneVec);
+
 	this->Delete(1);
 }
 void daEnWorldPakkun_c::endState_Death() {}
