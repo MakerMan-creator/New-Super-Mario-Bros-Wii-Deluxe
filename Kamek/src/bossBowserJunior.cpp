@@ -5,7 +5,7 @@
 #include "boss.h"
 #include "bowserjr.h" // Both classes for the boss's actors are here
 
-const char* BJarcNameList[] = { 
+const char* BJarcNameList[] = {
 	"koopaJr",
 	"nokonokoA",
 	NULL
@@ -53,18 +53,18 @@ int daBowserJr::onCreate() {
 
 	allocator.unlink();
 
-	ActivePhysics::Info HitMeBaby; 
-	HitMeBaby.xDistToCenter = 0.0; 
-	HitMeBaby.yDistToCenter = 10.0; 
-	HitMeBaby.xDistToEdge = 8.0; 
-	HitMeBaby.yDistToEdge = 10.0; 
-	HitMeBaby.category1 = 0x3; 
-	HitMeBaby.category2 = 0x0; 
-	HitMeBaby.bitfield1 = 0x4F; 
-	HitMeBaby.bitfield2 = 0xFFFE6FAE; 
-	HitMeBaby.unkShort1C = 0; 
-	HitMeBaby.callback = &dEn_c::collisionCallback; 
-	this->aPhysics.initWithStruct(this, &HitMeBaby); 
+	ActivePhysics::Info HitMeBaby;
+	HitMeBaby.xDistToCenter = 0.0;
+	HitMeBaby.yDistToCenter = 10.0;
+	HitMeBaby.xDistToEdge = 8.0;
+	HitMeBaby.yDistToEdge = 10.0;
+	HitMeBaby.category1 = 0x3;
+	HitMeBaby.category2 = 0x0;
+	HitMeBaby.bitfield1 = 0x4F;
+	HitMeBaby.bitfield2 = 0xFFFE6FAE;
+	HitMeBaby.unkShort1C = 0;
+	HitMeBaby.callback = &dEn_c::collisionCallback;
+	this->aPhysics.initWithStruct(this, &HitMeBaby);
 	this->aPhysics.addToList();
 
 	spriteSomeRectX = 28.0f;
@@ -87,11 +87,11 @@ int daBowserJr::onCreate() {
 	else
 	{	isBouncing = true;   }
 
-	const char* animFirst = (this->isHardBoss) ? "prov2" : "prov"; 
+	const char* animFirst = (this->isHardBoss) ? "prov2" : "prov";
 
-	this->scale.x = 1.2; 
-	this->scale.y = 1.2; 
-	this->scale.z = 1.2; 
+	this->scale.x = 1.2;
+	this->scale.y = 1.2;
+	this->scale.z = 1.2;
 
 	this->health = 15;
 	this->times = 0;
@@ -157,7 +157,7 @@ int daBowserJr::onDraw() {
 
 void daBowserJr::beginState_Intro() {
     this->timer = 0;
-	
+
 	StopBGMMusic();
 
 	// Set the necessary Flags and make Mario enter Demo Mode
@@ -170,7 +170,7 @@ void daBowserJr::beginState_Intro() {
 void daBowserJr::executeState_Intro() {
 	calculateTileCollisions();
 
-    if (this->timer == 1) { 
+    if (this->timer == 1) {
     	this->times++;
     	SFX intro = (isHardBoss) ? SE_VOC_JR_PROV1 : SE_VOC_JR_PROV2;
     	if (this->times >= 2) {
@@ -198,7 +198,7 @@ void daBowserJr::endState_Intro() {
 }
 
 void daBowserJr::beginState_Attack() {
-	this->timer = 0; 
+	this->timer = 0;
 	bindAnimChr_and_setUpdateRate("demo_airshipA2", 1, 0.0, 1.0);
 	rot.y = (direction) ? 0xD800 : 0x2800;
 }
@@ -218,7 +218,7 @@ void daBowserJr::executeState_Attack() {
 
         this->koopa->scale.x = 1.0;
         this->koopa->scale.y = 1.0;
-        this->koopa->scale.z = 1.0; 
+        this->koopa->scale.z = 1.0;
 
         //this->koopa->speed.x = (direction) ? -1.0 : 1.0;
         this->koopa->speed.y = 1.0;
@@ -226,6 +226,7 @@ void daBowserJr::executeState_Attack() {
 		daCustomShell *troopa = (daCustomShell*)koopa;
 
 		troopa->direction = this->direction;
+		troopa->bjrThrown = true;
 
 		if (isHardBoss) {
 			troopa->posAdd = 1.9;
@@ -256,7 +257,7 @@ void daBowserJr::executeState_Chase() {
 
 	this->facing = dSprite_c__getXDirectionOfFurthestPlayerRelativeToVEC3(this, this->pos);
 
-	
+
 	if (collMgr.isOnTopOfTile()) {
 		this->falling = false;
 
@@ -364,14 +365,14 @@ void daBowserJr::executeState_Outro() {
 		if (this->timer >= 310) {
 	        ExitStage(WORLD_MAP, 0, BEAT_LEVEL, MARIO_WIPE);
 	    }
-	
-		if (this->timer == 60) {    
+
+		if (this->timer == 60) {
 			PlaySoundWithFunctionB4(SoundRelatedClass, &handle, STRM_BGM_SHIRO_BOSS_CLEAR, 1);
-			PlayerVictoryCries(this);   
+			PlayerVictoryCries(this);
 		}
 
 		this->timer++;
-		
+
 		return;
 	}
 }
@@ -388,26 +389,26 @@ void daBowserJr::yoshiCollision(ActivePhysics *apThis, ActivePhysics *apOther) {
 bool daBowserJr::collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther) {
 	doStateChange(&StateID_Outro);
 	return true;
-} 
+}
 bool daBowserJr::collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return false;
-} 
+}
 bool daBowserJr::collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return false;
-} 
+}
 bool daBowserJr::collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return true;
-} 
+}
 bool daBowserJr::collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return false;
-} 
+}
 bool daBowserJr::collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return false;
-} 
+}
 bool daBowserJr::collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther) {
 	DamagePlayer(this, apThis, apOther);
 	return false;
-} 
+}
 bool daBowserJr::collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return false;
 }
@@ -416,7 +417,7 @@ bool daBowserJr::collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysic
         this->health -= (this->isHardBoss) ? 3 : 5;
 		doStateChange(&StateID_Damage);
 	}
-	
+
 	dActor_c *shell = apOther->owner;
 	dEn_c *blah = (dEn_c*)shell;
 
@@ -428,7 +429,7 @@ bool daBowserJr::collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysic
 }
 bool daBowserJr::collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return false;
-} 
+}
 bool daBowserJr::collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return false;
 }

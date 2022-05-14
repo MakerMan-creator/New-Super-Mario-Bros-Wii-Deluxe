@@ -18,8 +18,8 @@ public:
 
 	int health;
 	float sped;
-	int timer;
-	bool letsEndStage;
+	int timer, times;
+	bool letsEndStage, playSoundOnce;
 	int fireballHits = 0;
 	char isHardBoss;
 	int direction = 0;
@@ -39,18 +39,18 @@ public:
 	void playerCollision(ActivePhysics *apThis, ActivePhysics *apOther);
 	void yoshiCollision(ActivePhysics *apThis, ActivePhysics *apOther);
 
-	bool collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther); 
+	bool collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther);
 	bool collisionCat14_YoshiFire(ActivePhysics *apThis, ActivePhysics *apOther);
 
 	bool calculateTileCollisions();
@@ -83,34 +83,35 @@ public:
 	void _vf14C();
 	void _vf148();
 	bool CreateIceActors();
-	//int KoopaJrDirection();
+
+	bool bjrThrown = false;
 
     dEn_c *shell;
     bool isBouncing;
     u32 cmgr_returnValue;
     int direction;
-    f32 posAdd = 1.4;
+    f32 posAdd = 1.6;
 
 	void updateModelMatrices();
-	
+
 	static daCustomShell* build();
 
 	void playerCollision(ActivePhysics *apThis, ActivePhysics *apOther);
     void yoshiCollision(ActivePhysics *apThis, ActivePhysics *apOther);
     void spriteCollision(ActivePhysics *apThis, ActivePhysics *apOther);
 
-	bool collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther); 
-    bool collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther); 
+	bool collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther);
+    bool collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther);
 	bool collisionCat14_YoshiFire(ActivePhysics *apThis, ActivePhysics *apOther);
 	bool calculateTileCollisions();
 

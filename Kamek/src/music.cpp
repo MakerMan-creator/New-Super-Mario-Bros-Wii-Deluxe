@@ -40,11 +40,11 @@ const char* SongNameList [] = {
 	"SEWER",
 	"SPACE",
 	"BOWSER",
-	"BONUS",	
-	"AMBUSH",	
-	"BRIDGE_DRUMS",	
-	"SNOW2",	
-	"MINIMEGA",	
+	"BONUS",
+	"AMBUSH",
+	"BRIDGE_DRUMS",
+	"SNOW2",
+	"MINIMEGA",
 	"CLIFFS",
 	"AUTUMN",
 	"CRYSTALCAVES",
@@ -79,8 +79,10 @@ const char* SongNameList [] = {
 	"",
 	"BOSS_CASTLE",
 	"BOSS_AIRSHIP",
-	"CRISIS_CITY",//ID 158
-	NULL	
+	"CRISIS_CITY", // ID 158
+	"COURTYARD", // ID 159
+	"RUINS", // 160
+	NULL
 };
 
 
@@ -171,7 +173,7 @@ void FixFilesize(u32 streamNameOffset) {
 
 	s32 entryNum;
 	DVDHandle info;
-	
+
 	if ((entryNum = DVDConvertPathToEntrynum(nameWithSound)) >= 0) {
 		if (DVDFastOpen(entryNum, &info)) {
 			u32 *lengthPtr = (u32*)(streamName - 0x1C);

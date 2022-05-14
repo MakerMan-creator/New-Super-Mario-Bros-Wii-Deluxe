@@ -5,9 +5,9 @@
 #include "boss.h"
 #include "bowserjr.h" // Both classes for these are here
 
-const char* CSarcNameList [] = { 
-	"nokonokoA", 
-    NULL 
+const char* CSarcNameList [] = {
+	"nokonokoA",
+    NULL
 };
 
 CREATE_STATE(daCustomShell, Slide);
@@ -57,23 +57,29 @@ int daCustomShell::onCreate() {
 	else
 	{	isBouncing = true;   }
 
-	ActivePhysics::Info HitMeBaby; 
-	HitMeBaby.xDistToCenter = 0.0; 
-	HitMeBaby.yDistToCenter = 8.0; 
-	HitMeBaby.xDistToEdge = 7.0; 
-	HitMeBaby.yDistToEdge = 9.0; 
-	HitMeBaby.category1 = 0x3; 
-	HitMeBaby.category2 = 0x0; 
-	HitMeBaby.bitfield1 = 0x4F; 
-	HitMeBaby.bitfield2 = 0xFFFFEFAE; 
-	HitMeBaby.unkShort1C = 0; 
-	HitMeBaby.callback = &dEn_c::collisionCallback; 
-	this->aPhysics.initWithStruct(this, &HitMeBaby); 
-	this->aPhysics.addToList(); 
+	ActivePhysics::Info HitMeBaby;
+	HitMeBaby.xDistToCenter = 0.0;
+	HitMeBaby.yDistToCenter = 8.0;
+	HitMeBaby.xDistToEdge = 7.0;
+	HitMeBaby.yDistToEdge = 9.0;
+	HitMeBaby.category1 = 0x3;
+	HitMeBaby.category2 = 0x0;
+	HitMeBaby.bitfield1 = 0x4F;
+	HitMeBaby.bitfield2 = 0xFFFFEFAE;
+	HitMeBaby.unkShort1C = 0;
+	HitMeBaby.callback = &dEn_c::collisionCallback;
+	this->aPhysics.initWithStruct(this, &HitMeBaby);
+	this->aPhysics.addToList();
 
-	this->scale.x = 1.0; 
-	this->scale.y = 1.0; 
-	this->scale.z = 1.0; 
+	this->scale.x = 1.0;
+	this->scale.y = 1.0;
+	this->scale.z = 1.0;
+
+	if (!this->bjrThrown) {
+        pos.y += 32;
+
+        direction = (((this->settings >> 28) % 2) ^ 1);
+	}
 
 	doStateChange(&StateID_Slide);
 
@@ -129,13 +135,13 @@ void daCustomShell::beginState_Gone() {
 
     shell->scale.x = 1.0;
     shell->scale.y = 1.0;
-    shell->scale.z = 1.0; 
+    shell->scale.z = 1.0;
 
     shell->speed.x = (direction) ? -1.0 : 1.0;
     shell->speed.y = 1.0;
 
 	shell->rot.y = this->rot.y; // REALLY sell the illusion
-	
+
     this->Delete(true);
 }
 void daCustomShell::executeState_Gone() {
@@ -157,15 +163,18 @@ void daCustomShell::spriteCollision(ActivePhysics *apThis, ActivePhysics *apOthe
     dStageActor_c *actor = (dStageActor_c*)apOther->owner;
     dEn_c *block = (dEn_c*)actor;
 
-    if (block->name == EN_KURIBO) {
-        block->collisionCat9_RollingObject(apThis, apOther);
+    if (block->name == EN_BIRIKYU_MAKER) {
+        return;
+
     }
+
+    block->collisionCat9_RollingObject(apThis, apOther);
 }
 
 	bool daCustomShell::collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther) {
 		PlaySound(this, SE_EMY_DOWN);
         doStateChange(&StateID_Gone);
-        
+
         if (shell) {
             shell->collisionCat9_RollingObject(apThis, apOther);
         }
@@ -173,31 +182,31 @@ void daCustomShell::spriteCollision(ActivePhysics *apThis, ActivePhysics *apOthe
     }
 	bool daCustomShell::collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther) {
 		return this->collisionCat3_StarPower(apThis, apOther);
-	} 
+	}
 	bool daCustomShell::collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther) {
 		return this->collisionCat3_StarPower(apThis, apOther);
 	}
 	bool daCustomShell::collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther) {
 		return this->collisionCat3_StarPower(apThis, apOther);
-	} 
+	}
 	bool daCustomShell::collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther) {
 		return this->collisionCat3_StarPower(apThis, apOther);
-	} 
+	}
 	bool daCustomShell::collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther) {
 		return this->collisionCat3_StarPower(apThis, apOther);
-	} 
+	}
 	bool daCustomShell::collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther) {
 		return this->collisionCat3_StarPower(apThis, apOther);
-	} 
+	}
 	bool daCustomShell::collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther) {
 		return this->collisionCat3_StarPower(apThis, apOther);
-	} 
+	}
 	bool daCustomShell::collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther) {
 		return this->collisionCat3_StarPower(apThis, apOther);
 	}
 	bool daCustomShell::collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther) {
     	return this->collisionCat14_YoshiFire(apThis, apOther);
-    } 
+    }
 	bool daCustomShell::collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther) {
         return false;
 	}
@@ -210,7 +219,7 @@ void daCustomShell::spriteCollision(ActivePhysics *apThis, ActivePhysics *apOthe
             shell->collisionCat9_RollingObject(apThis, apOther);
         }
 	}
-	
+
 	void daCustomShell::_vf14C() {
 		dEn_c::_vf14C();
 		doStateChange(&StateID_Gone);
@@ -232,7 +241,7 @@ void daCustomShell::spriteCollision(ActivePhysics *apThis, ActivePhysics *apOthe
 
     bool daCustomShell::collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther) {
     	return this->collisionCat14_YoshiFire(apThis, apOther);
-    } 
+    }
 	bool daCustomShell::collisionCat14_YoshiFire(ActivePhysics *apThis, ActivePhysics *apOther) {
 		StageE4::instance->spawnCoinJump(pos, 0, 1, 0);
 		return this->collisionCat3_StarPower(apThis, apOther);
