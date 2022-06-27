@@ -76,7 +76,7 @@ int daCustomShell::onCreate() {
 	this->scale.z = 1.0;
 
 	if (!this->bjrThrown) {
-        pos.y += 32;
+        //pos.y += 32;
 
         direction = (((this->settings >> 28) % 2) ^ 1);
 	}
@@ -209,34 +209,6 @@ void daCustomShell::spriteCollision(ActivePhysics *apThis, ActivePhysics *apOthe
     }
 	bool daCustomShell::collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther) {
         return false;
-	}
-
-    ActivePhysics *apThis, *apOther;
-	void daCustomShell::_vf148() {
-		dEn_c::_vf148();
-		doStateChange(&StateID_Gone);
-		if (shell) {
-            shell->collisionCat9_RollingObject(apThis, apOther);
-        }
-	}
-
-	void daCustomShell::_vf14C() {
-		dEn_c::_vf14C();
-		doStateChange(&StateID_Gone);
-		if (shell) {
-            shell->collisionCat9_RollingObject(apThis, apOther);
-        }
-	}
-
-	extern "C" void sub_80024C20(void);
-	extern "C" void __destroy_arr(void*, void(*)(void), int, int);
-
-	bool daCustomShell::CreateIceActors() {
-		struct DoSomethingCool my_struct = { 0, this->pos, {1.2, 1.5, 1.5}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	    this->frzMgr.Create_ICEACTORs( (void*)&my_struct, 1 );
-	    __destroy_arr( (void*)&my_struct, sub_80024C20, 0x3C, 1 );
-	    this->animationChr.setUpdateRate(0.0f);
-	    return true;
 	}
 
     bool daCustomShell::collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther) {
