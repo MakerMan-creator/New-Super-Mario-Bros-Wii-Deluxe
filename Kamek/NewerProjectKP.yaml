@@ -1,6 +1,7 @@
 output_dir: "NewerASM"
 code_address: 0x808D9000
 modules:
+  - processed/beeper.yaml
   - processed/jumpingPiranha.yaml
   - processed/balloonBoo.yaml
   - processed/bossBowserJunior.yaml
@@ -50,7 +51,7 @@ modules:
   - processed/blocksnake.yaml
   - processed/classic_controller.yaml
   - processed/topman.yaml
-  - processed/bossMegaGoomba.yaml
+ # - processed/bossMegaGoomba.yaml
   - processed/bossFuzzyBear.yaml
   - processed/bossThwompaDomp.yaml
   - processed/bossRamboo.yaml
