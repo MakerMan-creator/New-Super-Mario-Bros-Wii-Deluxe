@@ -22,6 +22,7 @@ public:
 	};
 
 	daPlBase_c *players[4];
+	daBeeper *blocks[99];
 
 	TILES mode;
 	int block;
@@ -30,6 +31,8 @@ public:
 	int beeps = 3;
 	int timeplus;
 	bool reset = true;
+	int id;
+	int driver;
 
 	static daBeeper* build();
 
@@ -65,8 +68,10 @@ int daBeeper::onCreate() {
     physics.callback2 = &daEnBlockMain_c::PhysicsCallback2;
     physics.callback3 = &daEnBlockMain_c::PhysicsCallback3;
 
-    this->block = ((this->settings & 0x000F0000) >> 16) % 2;
-    this->timeplus = (this->settings >> 28 & 0xF) * 10;
+    this->block = ((this->settings & 0x000F0000) >> 16) % 2; // Nybble 8
+    this->timeplus = (this->settings >> 28 & 0xF) * 10; // Nybble 5
+    this->driver = (settings >> 24 & 0xF) % 2; // Nybble 6
+    this->id = settings >> 8 & 0xFF; // Nybbles 9 and 10
 
     if (block == 0) {
 	    physics.addToList();
@@ -100,10 +105,30 @@ int daBeeper::onExecute() {
 
 	dStateBase_c *a = acState.getCurrentState();
 
-	if (block == 0) {
-        tile.tileNumber = (a == &StateID_Active) ? 83 : 84;
-	} else {
-        tile.tileNumber = (a == &StateID_Active) ? 87 : 88;
+	if (driver) {
+        for (int i = 0; i < 99; i++) {
+            this->blocks[i] = (daBeeper*)Actor_SearchByID(384);
+
+            if (blocks[i]) {
+                if (blocks[i] == this) {
+                    break;
+                }
+
+                if (i > 0) {
+                    if (blocks[i] == blocks[(i - 1)]) {
+                        i--;
+                        continue;
+                    }
+                }
+
+                if (blocks[i]->id == this->id) {
+                    OSReport("Block linked!\n");
+
+                    blocks[i]->acState.setState(a);
+                }
+            }
+	}
+
 	}
 
 	return true;
@@ -117,7 +142,13 @@ int daBeeper::onDraw() {
 	return true;
 }
 
-void daBeeper::beginState_Active() {}
+void daBeeper::beginState_Active() {
+    if (block == 0) {
+        tile.tileNumber = 83;
+    } else {
+        tile.tileNumber = 87;
+    }
+}
 void daBeeper::executeState_Active() {
         if (time < 0) {
             if (t2 < 0) {
@@ -148,7 +179,13 @@ void daBeeper::endState_Active() {
     physics.removeFromList();
 }
 
-void daBeeper::beginState_NotActive() {}
+void daBeeper::beginState_NotActive() {
+    if (block == 0) {
+        tile.tileNumber = 84;
+    } else {
+        tile.tileNumber = 88;
+    }
+}
 void daBeeper::executeState_NotActive() {
         if (time < 0) {
             if (t2 < 0) {
