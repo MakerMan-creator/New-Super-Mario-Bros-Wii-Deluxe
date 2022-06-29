@@ -22,7 +22,7 @@ public:
 	    BLUE_LINE = 84,
 	};
 
-	//daPlBase_c *players[4];
+	daPlBase_c *players[4];
 	Remocon *control[4];
 
 	TILES mode;
@@ -34,7 +34,7 @@ public:
 	bool reset = true;
 	int id;
 	int driver;
-	int spintime = 60;
+	int spintime = 45;
 
 	static daBeeper* build();
 

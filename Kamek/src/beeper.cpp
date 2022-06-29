@@ -12,6 +12,8 @@ daBeeper* daBeeper::build() {
 	return new(buffer) daBeeper;
 }
 
+int times = 0;
+
 int daBeeper::onCreate() {
     blockInit(pos.y);
 
@@ -65,19 +67,21 @@ int daBeeper::onExecute() {
 
     int i;
 
-    if (spintime < 60) {
+    if (spintime < 45) {
         spintime++; 
     }
 
     for (i = 0; i < 4; i++) {
         control[i] = GetRemoconMng()->controllers[i];
+        players[i] = GetPlayerOrYoshi(i);
 
-        if (control[i]) {
+        if ((control[i]) && (players[i])) {
             break;
         }
     }
 
-    if ((control[i]->isShaking) && (spintime == 60)) {
+    if ((control[i]->isShaking) && 
+    (spintime == 45)) {
         PlaySound(this, SE_OBJ_STEP_ON_SWITCH);
 
         if (acState.getCurrentState() == &StateID_Active) {
@@ -86,7 +90,7 @@ int daBeeper::onExecute() {
             doStateChange(&StateID_Active);
         }
 
-        spintime = 60;
+        spintime = 0;
     }
 
 	return true;
