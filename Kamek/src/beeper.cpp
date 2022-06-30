@@ -2,7 +2,39 @@
 #include <game.h>
 #include <g3dhax.h>
 #include <sfx.h>
-#include <beeperfull.h>
+
+class daBeeper : public daEnBlockMain_c {
+public:
+
+	int onCreate();
+	int onExecute();
+	int onDelete();
+	int onDraw();
+
+	TileRenderer tile;
+	Physics::Info physicsInfo;
+
+	enum TILES {
+	    BLUE = 83,
+	    BLUE_LINE = 84,
+	};
+
+	daPlBase_c *players[4];
+	Remocon *control[4];
+
+	TILES mode;
+	int block;
+	int time = 10;
+	bool reset = true;
+	int id;
+	int driver;
+
+	static daBeeper* build();
+
+	USING_STATES(daBeeper);
+	DECLARE_STATE(Active);
+	DECLARE_STATE(NotActive);
+};
 
 CREATE_STATE(daBeeper, Active);
 CREATE_STATE(daBeeper, NotActive);
@@ -53,8 +85,6 @@ int daBeeper::onCreate() {
 
 	OSReport("0.");
 
-	time += timeplus;
-
 	this->onExecute();
 
 	return true;
@@ -67,30 +97,30 @@ int daBeeper::onExecute() {
 
     int i;
 
-    if (spintime < 45) {
-        spintime++; 
-    }
+	if (time < 10) { time++; }
 
     for (i = 0; i < 4; i++) {
         control[i] = GetRemoconMng()->controllers[i];
         players[i] = GetPlayerOrYoshi(i);
 
         if ((control[i]) && (players[i])) {
-            break;
+            if ((control[i]->nowPressed & WPAD_TWO) && 
+			(reset) && (time == 10)) {
+                PlaySound(this, SE_OBJ_STEP_ON_SWITCH);
+
+                if (acState.getCurrentState() == &StateID_Active) {
+                    doStateChange(&StateID_NotActive);
+                } else {
+                    doStateChange(&StateID_Active);
+                }
+
+                reset = false;
+
+				time = 0;
+            }
+
+            reset = players[i]->collMgr.isOnTopOfTile();
         }
-    }
-
-    if ((control[i]->isShaking) && 
-    (spintime == 45)) {
-        PlaySound(this, SE_OBJ_STEP_ON_SWITCH);
-
-        if (acState.getCurrentState() == &StateID_Active) {
-            doStateChange(&StateID_NotActive);
-        } else {
-            doStateChange(&StateID_Active);
-        }
-
-        spintime = 0;
     }
 
 	return true;
