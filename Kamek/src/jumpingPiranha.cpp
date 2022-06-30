@@ -122,6 +122,8 @@ int daEnWorldPakkun_c::onCreate() {
 	this->inity = this->pos.y;
 	this->pos.x++;
 
+	this->rot.y = 0x4000;
+
 	this->onExecute();
 
 	return true;
