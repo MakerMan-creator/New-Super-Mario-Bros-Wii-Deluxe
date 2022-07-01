@@ -405,7 +405,7 @@ void daBombKing::playerCollision(ActivePhysics *apThis, ActivePhysics *apOther) 
 				return false;
 			}
 
-			this->health -= 3;
+			this->health -= 5;
 
 			doStateChange(&StateID_Damage);
 
