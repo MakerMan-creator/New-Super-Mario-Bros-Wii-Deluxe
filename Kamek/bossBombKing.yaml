@@ -1,0 +1,16 @@
+---
+#Replaces Actor 499 EN_BIGBLOCK (Sprite 157)
+
+
+source_files: [../src/bossBombKing.cpp]
+hooks:
+  - name: daBombKingBuild
+    type: add_func_pointer
+    src_addr_pal: 0x80AD9060
+    target_func: 'daBombKing::build()'
+
+  - name: daBombKingSpriteFileInfo
+    type: add_func_pointer
+    src_addr_pal: 0x8031adc0
+    target_func: 'KBBarcNameList'
+    # 0x8031AB4C + sprite num * 0x4 == offset
