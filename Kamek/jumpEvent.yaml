@@ -1,0 +1,10 @@
+---
+#Replaces Actor 554 AC_WATER_BUBBLE_PARENT (Sprite 329)
+
+
+source_files: [../src/jumpEvent.cpp]
+hooks:
+  - name: daEnJumpEvent_cBuild
+    type: add_func_pointer
+    src_addr_pal: 0x80980090
+    target_func: 'daEnJumpEvent_c::build()'
