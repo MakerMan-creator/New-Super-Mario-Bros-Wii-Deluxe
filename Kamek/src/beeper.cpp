@@ -17,6 +17,8 @@ public:
 	enum TILES {
 	    BLUE = 83,
 	    BLUE_LINE = 84,
+		RED = 87,
+		RED_LINE = 88,
 	};
 
 	daPlBase_c *players[4];
@@ -26,8 +28,8 @@ public:
 	int block;
 	int time = 10;
 	bool reset = true;
-	int id;
 	int driver;
+	u8 event;
 
 	static daBeeper* build();
 
@@ -65,16 +67,28 @@ int daBeeper::onCreate() {
     physics.callback3 = &daEnBlockMain_c::PhysicsCallback3;
 
     this->block = ((this->settings & 0x000F0000) >> 16) % 2; // Nybble 8
-    this->id = settings >> 8 & 0xFF; // Nybbles 9 and 10
+	this->event = (this->settings >> 28 & 0xF) - 1; // Nybble 5
 
     if (block == 0) {
 	    physics.addToList();
     }
 
-	if (block == 0) { doStateChange(&StateID_Active); }
-    else { doStateChange(&StateID_NotActive); }
+	if (block == 0) { 
+		if (dFlagMgr_c::instance->active(event)) { 
+			doStateChange(&StateID_Active); 
+		} else {
+			doStateChange(&StateID_NotActive);
+		}
+	}
+    else { 
+		if (dFlagMgr_c::instance->active(event)) { 
+			doStateChange(&StateID_NotActive); 
+		} else {
+			doStateChange(&StateID_Active);
+		} 
+	}
 
-    this->mode = (TILES)((block == 0) ? 83 : 84);
+    this->mode = (TILES)((block == 0) ? 83 : 88);
 
     TileRenderer::List *list = dBgGm_c::instance->getTileRendererList(0);
 	list->add(&tile);
@@ -82,8 +96,6 @@ int daBeeper::onCreate() {
 	tile.x = pos.x - 8;
 	tile.y = -(16 + pos.y);
 	tile.tileNumber = (u16)mode;
-
-	OSReport("0.");
 
 	this->onExecute();
 
@@ -95,33 +107,20 @@ int daBeeper::onExecute() {
 	physics.update();
 	blockUpdate();
 
-    int i;
-
-	if (time < 10) { time++; }
-
-    for (i = 0; i < 4; i++) {
-        control[i] = GetRemoconMng()->controllers[i];
-        players[i] = GetPlayerOrYoshi(i);
-
-        if ((control[i]) && (players[i])) {
-            if ((control[i]->nowPressed & WPAD_TWO) && 
-			(reset) && (time == 10)) {
-                PlaySound(this, SE_OBJ_STEP_ON_SWITCH);
-
-                if (acState.getCurrentState() == &StateID_Active) {
-                    doStateChange(&StateID_NotActive);
-                } else {
-                    doStateChange(&StateID_Active);
-                }
-
-                reset = false;
-
-				time = 0;
-            }
-
-            reset = players[i]->collMgr.isOnTopOfTile();
-        }
-    }
+	if (block == 0) { 
+		if (dFlagMgr_c::instance->active(event)) { 
+			doStateChange(&StateID_Active); 
+		} else {
+			doStateChange(&StateID_NotActive);
+		}
+	}
+    else { 
+		if (dFlagMgr_c::instance->active(event)) { 
+			doStateChange(&StateID_NotActive); 
+		} else {
+			doStateChange(&StateID_Active);
+		} 
+	}
 
 	return true;
 }
@@ -135,7 +134,7 @@ int daBeeper::onDraw() {
 }
 
 void daBeeper::beginState_Active() {
-    tile.tileNumber = 83;
+    tile.tileNumber = (block == 0) ? 84 : 88;
 }
 void daBeeper::executeState_Active() {
     
@@ -145,7 +144,7 @@ void daBeeper::endState_Active() {
 }
 
 void daBeeper::beginState_NotActive() {
-    tile.tileNumber = 84;
+    tile.tileNumber = (block == 0) ? 83 : 87;
 }
 void daBeeper::executeState_NotActive() {
     
