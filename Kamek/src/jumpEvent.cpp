@@ -28,7 +28,11 @@ daEnJumpEvent_c* daEnJumpEvent_c::build() {
 
 
 int daEnJumpEvent_c::onCreate() {
-    this->event = (this->settings >> 28 & 0xF) - 1;
+    this->event = (settings >> 24 & 0xFF) - 1; // Nybbles 5 and 6
+
+	if (this->event > 64) {
+		this->event = 64;
+	}
 
 	OSReport("Spawned!\n");
 
