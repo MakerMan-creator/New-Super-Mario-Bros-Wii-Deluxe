@@ -67,11 +67,7 @@ int daBeeper::onCreate() {
     physics.callback3 = &daEnBlockMain_c::PhysicsCallback3;
 
     this->block = ((this->settings & 0x000F0000) >> 16) % 2; // Nybble 8
-	this->event = (settings >> 24 & 0xFF) - 1; // Nybbles 5 and 6
-
-	if (this->event > 64) {
-		this->event = 64;
-	} 
+	this->event = (this->settings >> 28 & 0xF) - 1; // Nybble 5
 
     if (block == 0) {
 	    physics.addToList();
