@@ -120,17 +120,17 @@ void FuckinBubbles() {
 bool LevelSpecial_Create(LevelSpecial *self) {
 	char eventNum	= (self->settings >> 24)	& 0xFF;
 	self->eventFlag = (u64)1 << (eventNum - 1);
-	
+
 	self->keepTime  = 0;
-	
+
 	self->type		= (self->settings)			& 15;
 	self->effect	= (self->settings >> 4)		& 15;
 	self->setTime	= (self->settings >> 8)     & 0xFFFF;
 
 	self->lastEvState = 0xFF;
-	
+
 	LevelSpecial_Update(self);
-	
+
 	return true;
 }
 
@@ -144,15 +144,15 @@ bool LevelSpecial_Execute(LevelSpecial *self) {
 
 
 void LevelSpecial_Update(LevelSpecial *self) {
-	
+
 	u8 newEvState = 0;
 	if (dFlagMgr_c::instance->flags & self->eventFlag)
 		newEvState = 1;
-	
+
 	if (newEvState == self->lastEvState)
 		return;
-		
-	
+
+
 	u8 offState;
 	if (newEvState == ACTIVATE)
 	{
@@ -162,12 +162,12 @@ void LevelSpecial_Update(LevelSpecial *self) {
 			// case 1:											// Time Freeze
 			// 	TimeStopFlag = self->effect * 0x100;
 			// 	break;
-				
+
 			case 2:											// Stop Timer
 				self->keepTime  = time;
 				break;
-		
-	
+
+
 			case 3:											// Mario Gravity
 				if (self->effect == 0)
 				{											//Low grav
@@ -176,15 +176,22 @@ void LevelSpecial_Update(LevelSpecial *self) {
 					MiniMarioJumpArc = 0.5;
 					MarioJumpMax = 4.5;
 				}
-				else
+				else if (self->effect == 1)
 				{											//Anti-grav
-					MarioDescentRate = 0.5;
+					MarioDescentRate = 2.0;
 					MarioJumpArc = 4.0;
 					MiniMarioJumpArc = 4.0;
 					MarioJumpMax = 0.0;
 				}
+				else
+				{  // High Grav
+                    MarioDescentRate = -4;
+					MarioJumpArc = 2.5;
+					MiniMarioJumpArc = 2.5;
+					MarioJumpMax = 2.84;
+				}
 				break;
-	
+
 			case 4:											// Set Time
 				time = (self->setTime << 0xC) - 1; // Possibly - 0xFFF?
 				break;
@@ -200,21 +207,21 @@ void LevelSpecial_Update(LevelSpecial *self) {
 				AlwaysDrawFlag = 0x38600001;
 				AlwaysDrawBranch = 0x4E800020;
 				break;
-	
+
 			case 6:											// Individual Enemy Size
 				AlwaysDrawFlag = 0x38600001;
 				AlwaysDrawBranch = 0x4E800020;
 
 				if (self->effect == 0)
-				{	
+				{
 					SizerOn = 1;							// Nyb 5
 				}
 				else
-				{											
+				{
 					SizerOn = 2;							// Nyb 7
 				}
 				break;
-		
+
 			case 7:											// Z Order Hack
 				ZOrderOn = 1;
 				break;
@@ -235,7 +242,7 @@ void LevelSpecial_Update(LevelSpecial *self) {
 				break;
 		}
 	}
-	
+
 	else
 	{
 		offState = (newEvState == 1) ? 0 : 1;
@@ -244,22 +251,22 @@ void LevelSpecial_Update(LevelSpecial *self) {
 			// case 1:											// Time Freeze
 			// 	TimeStopFlag = 0;
 			// 	break;
-				
+
 			case 2:											// Stop Timer
 				self->keepTime  = 0;
 				break;
-		
-	
+
+
 			case 3:											// Mario Gravity
 				MarioDescentRate = -4;
 				MarioJumpArc = 2.5;
 				MiniMarioJumpArc = 2.5;
 				MarioJumpMax = 3.628;
 				break;
-	
+
 			case 4:											// Mario Size
 				break;
-		
+
 			case 5:											// Global Enemy Size
 				SizerOn = 0;
 
@@ -277,11 +284,11 @@ void LevelSpecial_Update(LevelSpecial *self) {
 				AlwaysDrawFlag = 0x9421FFF0;
 				AlwaysDrawBranch = 0x7C0802A6;
 				break;
-		
+
 			case 7:											// Z Order Hack
 				ZOrderOn = 0;
 				break;
-				
+
 			case 8:
 				NoMichaelBuble = false;
 				break;
@@ -289,7 +296,7 @@ void LevelSpecial_Update(LevelSpecial *self) {
 			case 9:
 				BGScaleEnabled = false;
 				break;
-	
+
 			default:
 				break;
 		}
@@ -298,7 +305,7 @@ void LevelSpecial_Update(LevelSpecial *self) {
 
 
 
-	
-	
+
+
 	self->lastEvState = newEvState;
 }
