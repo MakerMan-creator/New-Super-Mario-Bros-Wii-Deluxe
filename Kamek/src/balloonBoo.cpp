@@ -4,7 +4,7 @@
 #include <sfx.h>
 #include "boss.h"
 
-// Initially made for BruhHummus' NSMB DS remake, 
+// Initially made for BruhHummus' NSMB DS remake,
 // and tweaked to be a little different here
 
 const char* BalloonBooFileList[] = { "teresa", NULL };
@@ -17,7 +17,7 @@ public:
 	int onDelete();
 	int onDraw();
 
-	ActivePhysics::Info HitMeBaby; 
+	ActivePhysics::Info HitMeBaby;
 	int cackleTimer = 0;
 	daPlBase_c *player;
 	float target[2];
@@ -39,18 +39,18 @@ public:
 	void playerCollision(ActivePhysics *apThis, ActivePhysics *apOther);
 	void yoshiCollision(ActivePhysics *apThis, ActivePhysics *apOther);
 
-	bool collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther); 
+	bool collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther);
 	bool collisionCat14_YoshiFire(ActivePhysics *apThis, ActivePhysics *apOther);
 
 	mHeapAllocator_c allocator;
@@ -105,7 +105,7 @@ bool dBalloonBoo_c::Shrink(float scale) {
     	this->scale = (Vec){scale, scale, scale};
     	return true;
     }
-    
+
     this->scale.x -= (1.2f / 80.0f);
     return false;
 }
@@ -134,7 +134,7 @@ dBalloonBoo_c* dBalloonBoo_c::build() {
 }
 
 int dBalloonBoo_c::onCreate() {
-	this->setUpTheseDamnEffects(); 
+	this->setUpTheseDamnEffects();
 
 	this->still = ((this->settings & 0x000F0000) >> 16);
 	int set = this->settings >> 28 & 0xF;
@@ -144,22 +144,22 @@ int dBalloonBoo_c::onCreate() {
 
 	this->pos.z += 1.5;
 
-	HitMeBaby.xDistToCenter = 0.0; 
-	HitMeBaby.yDistToCenter = 11.0; 
-	HitMeBaby.xDistToEdge = 45.0; 
-	HitMeBaby.yDistToEdge = 45.0; 
-	HitMeBaby.category1 = 0x3; 
-	HitMeBaby.category2 = 0x0; 
-	HitMeBaby.bitfield1 = 0x4F; 
-	HitMeBaby.bitfield2 = 0xFFFFFFFF; 
-	HitMeBaby.unkShort1C = 0; 
-	HitMeBaby.callback = &dEn_c::collisionCallback; 
-	this->aPhysics.initWithStruct(this, &HitMeBaby); 
-	this->aPhysics.addToList(); 
+	HitMeBaby.xDistToCenter = 0.0;
+	HitMeBaby.yDistToCenter = 11.0;
+	HitMeBaby.xDistToEdge = 45.0;
+	HitMeBaby.yDistToEdge = 45.0;
+	HitMeBaby.category1 = 0x3;
+	HitMeBaby.category2 = 0x0;
+	HitMeBaby.bitfield1 = 0x4F;
+	HitMeBaby.bitfield2 = 0xFFFFFFFF;
+	HitMeBaby.unkShort1C = 0;
+	HitMeBaby.callback = &dEn_c::collisionCallback;
+	this->aPhysics.initWithStruct(this, &HitMeBaby);
+	this->aPhysics.addToList();
 
-	this->scale.x = 5.0; 
-	this->scale.y = 5.0; 
-	this->scale.z = 5.0; 
+	this->scale.x = 5.0;
+	this->scale.y = 5.0;
+	this->scale.z = 5.0;
 
 	bindAnimChr_and_setUpdateRate("wait_otherB", 1, 0.0, 1.2);
 
@@ -196,7 +196,7 @@ int dBalloonBoo_c::onExecute() {
     	HitMeBaby.xDistToEdge = (9.0 * this->scale.x);
         HitMeBaby.yDistToEdge = HitMeBaby.xDistToEdge;
     	HitMeBaby.yDistToCenter = (11.0 * this->scale.x);
-    
+
         this->aPhysics.initWithStruct(this, &HitMeBaby);
     }
 
@@ -220,7 +220,7 @@ int dBalloonBoo_c::onExecute() {
 
 	if (acState.getCurrentState() != &StateID_Die) {
 		this->cackleTimer++;
-	
+
 		if (this->cackleTimer > 770) {
 	        PlaySound(this, SE_EMY_TERESA);
 	        this->cackleTimer = 0;
@@ -264,6 +264,9 @@ void dBalloonBoo_c::executeState_Deflate() {
 
 	if (!minGrown) {
 		PlaySound(this, SE_EMY_HUHU_BREATH_OUT);
+	} else {
+		this->speed = (Vec){0.0,0.0,0.0};
+		return;
 	}
 
 	if (player) {
@@ -279,8 +282,8 @@ void dBalloonBoo_c::executeState_Deflate() {
 	if ((this->pos.x != target[0]) || (this->pos.y != target[1])) {
 		if (player) {
 			// Editing the speed
-			this->speed.x = ((this->pos.x < target[0]) ? ((target[0] + this->pos.x) / divider) : ((target[0] - this->pos.x) / divider));  
-			this->speed.y = ((this->pos.y < target[1]) ? ((target[1] - this->pos.y) / divider) : ((target[1] + this->pos.y) / divider)); 
+			this->speed.x = ((this->pos.x < target[0]) ? ((target[0] + this->pos.x) / divider) : ((target[0] - this->pos.x) / divider));
+			this->speed.y = ((this->pos.y < target[1]) ? ((target[1] - this->pos.y) / divider) : ((target[1] + this->pos.y) / divider));
 
 			for (int i = 0; i < 8; i++)
 			{
@@ -290,7 +293,7 @@ void dBalloonBoo_c::executeState_Deflate() {
 					if ((speed.y < -divTwo) || (speed.y > divTwo)) {
 				        speed.y /= 2.2;
 			        }
-			    
+
 			        if ((speed.x < -divTwo) || (speed.x > divTwo)) {
 				        speed.x /= 2.2;
 			        }
@@ -302,18 +305,18 @@ void dBalloonBoo_c::executeState_Deflate() {
 					    if ((speed.y < -divTwo) || (speed.y > divTwo)) {
 				            speed.y /= 1.5;
 			            }
-			    
+
 			            if ((speed.x < -divTwo) || (speed.x > divTwo)) {
 				            speed.x /= 2.2;
 			            }
 					}
 				}
-			}  
+			}
 		} else {
 			this->speed.y = this->speed.x = 0.0;
 		}
 	}
-	
+
 	this->UpdateObjectPosBasedOnSpeedValuesReal();
 }
 void dBalloonBoo_c::endState_Deflate() {}
@@ -352,30 +355,30 @@ void dBalloonBoo_c::playerCollision(ActivePhysics *apThis, ActivePhysics *apOthe
         doStateChange(&StateID_Die);
 
         return true;
-	} 
-	bool dBalloonBoo_c::collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
-	bool dBalloonBoo_c::collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
-	bool dBalloonBoo_c::collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
-	bool dBalloonBoo_c::collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
-	bool dBalloonBoo_c::collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
-	bool dBalloonBoo_c::collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
-	bool dBalloonBoo_c::collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
+	}
+	bool dBalloonBoo_c::collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
+	bool dBalloonBoo_c::collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
+	bool dBalloonBoo_c::collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
+	bool dBalloonBoo_c::collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
+	bool dBalloonBoo_c::collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
+	bool dBalloonBoo_c::collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
+	bool dBalloonBoo_c::collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
 	bool dBalloonBoo_c::collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther) {
 		return false;
-	}  
-	bool dBalloonBoo_c::collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }  
+	}
+	bool dBalloonBoo_c::collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
 	bool dBalloonBoo_c::collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
 	bool dBalloonBoo_c::collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther) {
 		const float newScale = 1.75f;
 
         if ((this->scale.x <= newScale) && (this->scale.y <= newScale) && (this->scale.z <= newScale)) {
         	StageE4::instance->spawnCoinJump(pos, 0, 3, 0);
-        	
+
         	doStateChange(&StateID_Die);
 
         	return true;
         }
 
 		return false;
-	}  
-	bool dBalloonBoo_c::collisionCat14_YoshiFire(ActivePhysics *apThis, ActivePhysics *apOther) { return true; } 
+	}
+	bool dBalloonBoo_c::collisionCat14_YoshiFire(ActivePhysics *apThis, ActivePhysics *apOther) { return true; }
