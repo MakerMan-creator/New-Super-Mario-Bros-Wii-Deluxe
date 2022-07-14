@@ -1,0 +1,25 @@
+---
+#Replaces Actor 210 BRANCH (Sprite 213) and 
+
+
+source_files: [../src/bossFinalBowser.cpp]
+hooks:
+  - name: FinalBowserBuild
+    type: add_func_pointer
+    src_addr_pal: 0x80955978
+    target_func: 'daEnFinalBowser_c::build()'
+
+  - name: FinalBowserSpriteFileInfo
+    type: add_func_pointer
+    src_addr_pal: 0x8031aea0
+    target_func: 'FinalBowserFileList'
+    # 0x8031AB4C + sprite num * 0x4 == offset
+
+    # Replaces WM_ANCHOR
+
+  - name: UpdateFinalBowserSpriteInfo
+    type: patch
+    # 0x8030A340 + sprite num * 0x28 == offset
+    addr_pal: 0x8030c488
+    #      -ID- ----  -X Offs- -Y Offs-  -RectX1- -RectY1- -RectX2- -RectY2-  -1C- -1E- -20- -22-  Flag ----
+    data: '00D2 0000  00000000 00000000  00000000 00000000 00221000 00221000  0000 0000 0000 0000  0000 0000'
