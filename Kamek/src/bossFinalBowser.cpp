@@ -34,7 +34,7 @@ public:
 	float initPlayerX[4];
 	bool GotInitX[4];
 	int there = 0;
-	bool buttonSet;
+	bool buttonSet[4];
 	float initYPos, initXPos;
 	dEn_c *fire;
 	int health = 30;
@@ -122,7 +122,7 @@ void daEnFinalBowser_c::updateModelMatrices() {
 }
 
 void BowserCollCallBack(ActivePhysics *apThis, ActivePhysics *apOther) {
-	if ((apOther->owner->name != 544) && (apOther)->owner->name != 261) {
+	if ((apOther->owner->name != 544) && (apOther->owner->name != 261)) {
 		dEn_c::collisionCallback(apThis, apOther);
 	}
 }
@@ -173,7 +173,7 @@ int daEnFinalBowser_c::onCreate() {
 	HitMeBaby.category1 = 0x3; 
 	HitMeBaby.category2 = 0x0; 
 	HitMeBaby.bitfield1 = 0x4F; 
-	HitMeBaby.bitfield2 = 0xFFCFCEA6; 
+	HitMeBaby.bitfield2 = 0xFFCE4EA6; 
 	HitMeBaby.unkShort1C = 0; 
 	HitMeBaby.callback = &BowserCollCallBack; 
 	this->aPhysics.initWithStruct(this, &HitMeBaby); 
@@ -328,8 +328,14 @@ void daEnFinalBowser_c::beginState_PlayerLook() {
 		players[i] = GetPlayerOrYoshi(i);
 
 		if (players[i]) {
-			// SE_VOC_MA_CS_NOTICE_JR, SE_VOC_LU_CS_NOTICE_JR,
-			// SE_VOC_KO_CS_NOTICE_JR, SE_VOC_KO2_CS_NOTICE_JR 
+			SFX look[4] = { 
+				SE_VOC_MA_CS_NOTICE_JR, 
+				SE_VOC_LU_CS_NOTICE_JR,
+			    SE_VOC_KO_CS_NOTICE_JR, 
+			    SE_VOC_KO2_CS_NOTICE_JR 
+			};
+			
+			PlaySound(this, look[i]);
 		}
 	}
 }
@@ -354,10 +360,14 @@ void daEnFinalBowser_c::beginState_PlayerOutOfWay() {
 		players[i] = GetPlayerOrYoshi(i);
 	
 		if (players[i]) {
-			if (!this->GotInitX[i]) {
+			//if (!this->GotInitX[i]) {
                 initPlayerX[i] = players[i]->pos.x;
 
-                GotInitX[i] = true;
+            //   GotInitX[i] = true;
+			//}
+
+			if (i > 1) {
+				timerAlt = (73 * i);
 			}
 		}
 	}
@@ -373,35 +383,45 @@ void daEnFinalBowser_c::executeState_PlayerOutOfWay() {
 
 			// Setting necessary flags...
 
-			if (timerAlt > 0) {
-                if (!buttonSet) {
+			//if (timerAlt > 0) {
+                if (!buttonSet[i]) {
                 	if (players[i]->isReadyForDemoControlAction()) {
                 		players[i]->demoMoveSpeed = 0.0;
                 		players[i]->direction ^= 1;
 
                 		players[i]->input.setPermanentForcedButtons(WPAD_LEFT);
-                		players[i]->input.setPermanentForcedButtons(WPAD_ONE);
+                		//players[i]->input.setPermanentForcedButtons(WPAD_ONE);
 
-                		buttonSet = true;
+                		buttonSet[i] = true;
                 	}
                 }
 
-                timerAlt--;
-			} else {
-				if (buttonSet) {
+            //    timerAlt--;
+			//} else 
+            if (players[i]->pos.x <= (initPlayerX[i] - 160.0)) {
+            	players[i]->pos.x = (initPlayerX[i] - 160.0);
+				if (buttonSet[i]) {
 					players[i]->input.unsetPermanentForcedButtons(WPAD_LEFT);
-					players[i]->input.unsetPermanentForcedButtons(WPAD_ONE);
+					//players[i]->input.unsetPermanentForcedButtons(WPAD_ONE);
 
 					players[i]->direction ^= 1;
 
-					buttonSet = false;
+					buttonSet[i] = false;
 
-					return;
+					//return;
 				}
 
 				if (timer > 130) {
 					doStateChange(&StateID_Jump);
 					return;
+				}
+
+				if ((timer == 30) || (timer == 60) || (timer == 95)) {
+					players[i]->input.setPermanentForcedButtons(WPAD_TWO);
+				}
+
+				if ((timer == 32) || (timer == 62) || (timer == 97)) {
+					players[i]->input.unsetPermanentForcedButtons(WPAD_TWO);
 				}
 
 				timer++;
@@ -563,10 +583,7 @@ void daEnFinalBowser_c::beginState_Walk() {
 	number = AbsVal(GenerateRandomNumber(2));
             
     number = (number % 3);
-
-	if (ab7 > 7) {
-		ab7 = 7;
-	}
+    ab7 = (ab7 % 7);
 
 	this->fireballTime = (110 * ab7);
 
