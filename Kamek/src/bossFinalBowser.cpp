@@ -12,6 +12,7 @@ const char* FinalBowserFileList[] = {
     "choropoo",
 	"koopa_clown_bomb",
 	"dossun", 
+	"iron_ball",
 	NULL 
 };
 
@@ -46,6 +47,7 @@ public:
 	int waitTime = 100;
 	int wrenchAmount = 3;
 	bool animSet;
+	int number, num;
 
 	void powBlockActivated(bool isNotMPGP);
 
@@ -127,6 +129,7 @@ void BowserCollCallBack(ActivePhysics *apThis, ActivePhysics *apOther) {
 	}
 }
 
+// To set a timer
 #define time *(u32*)((GameTimer) + 0x4)
 
 void daEnFinalBowser_c::bindAnimChr_and_setUpdateRate(const char* name, int unk, float unk2, float rate) {
@@ -215,6 +218,8 @@ int daEnFinalBowser_c::onCreate() {
 		pos.y = -5256;
 	}
 
+	direction = 0;
+
 	if (phases == 1) { doStateChange(&StateID_PlayerLook); }
 	else { doStateChange(&StateID_BeginPhase2); }
 
@@ -253,7 +258,7 @@ int daEnFinalBowser_c::onExecute() {
 		checkZoneBoundaries(0);
 
 	    if (acState.getCurrentState() == &StateID_Walk) {
-	    	if (pos.x > 808.0) {
+	    	/* if (pos.x > 808.0) {
 	    		if (this->isOutOfView()) {
 	    		    speed.x = (direction) ? 1.0 : -1.0;
 	    		} else {
@@ -281,7 +286,7 @@ int daEnFinalBowser_c::onExecute() {
 	    		}
 	        } else {
 	        	pos.x = 808.0;
-	        }
+	        } */
 	    }
 	    
 	}
@@ -323,25 +328,28 @@ void daEnFinalBowser_c::beginState_PlayerLook() {
 
 	_120 |= 8;
 	lookAtMode = 2;
-
-	for (int i = 0; i < 4; i++) {
-		players[i] = GetPlayerOrYoshi(i);
-
-		if (players[i]) {
-			SFX look[4] = { 
-				SE_VOC_MA_CS_NOTICE_JR, 
-				SE_VOC_LU_CS_NOTICE_JR,
-			    SE_VOC_KO_CS_NOTICE_JR, 
-			    SE_VOC_KO2_CS_NOTICE_JR 
-			};
-			
-			PlaySound(this, look[i]);
-		}
-	}
 }
 void daEnFinalBowser_c::executeState_PlayerLook() {
 	if (timer >= 100) {
 		_120 &= ~8;
+	}
+
+	if (timer == 25) {
+		for (int i = 0; i < 4; i++) {
+		    players[i] = GetPlayerOrYoshi(i);
+
+		    if (players[i]) {
+			    SFX look[4] = { 
+				    SE_VOC_MA_CS_NOTICE_JR, 
+				    SE_VOC_LU_CS_NOTICE_JR,
+			        SE_VOC_KO_CS_NOTICE_JR, 
+			        SE_VOC_KO2_CS_NOTICE_JR 
+			    };
+			
+			    nw4r::snd::SoundHandle handle;
+			    PlaySoundWithFunctionB4(SoundRelatedClass, &handle, look[Player_ID[i]], 1);
+		    }
+	    }
 	}
 
 	if (timer >= 125) {
@@ -470,7 +478,16 @@ void daEnFinalBowser_c::endState_Jump() {}
 void daEnFinalBowser_c::beginState_Land() {
 	bindAnimChr_and_setUpdateRate("kp_jump_ed", 1, 0.0, 1.0);
 
-	PlaySoundAsync(this, SE_EMY_BIG_DOSSUN);
+	nw4r::snd::SoundHandle handle;
+	PlaySoundWithFunctionB4(SoundRelatedClass, &handle, SE_BOSS_KOOPA_L_LAND, 1);
+
+	for (int i = 0; i < 4; i++) {
+		players[i] = GetPlayerOrYoshi(i);
+
+		if (players[i]) {
+			players[i]->speed.y = 1.1;
+		}
+	}
 }
 void daEnFinalBowser_c::executeState_Land() {
     pos.y = -600;
@@ -516,7 +533,8 @@ void daEnFinalBowser_c::executeState_Roar() {
 	pos.y = -600;
 
 	if (this->animationChr.getCurrentFrame() == 53.0) {
-	    PlaySound(this, SE_VOC_KP_L_SHOUT);
+		nw4r::snd::SoundHandle handle;
+	    PlaySoundWithFunctionB4(SoundRelatedClass, &handle, SE_VOC_KP_L_SHOUT, 1);
     }
     else if ((this->animationChr.getCurrentFrame() > 53.0)) {
     	ShakeScreen(StageScreen, 2, 1, 0, 0);
@@ -571,48 +589,44 @@ void daEnFinalBowser_c::executeState_WaitForAutoscroll() {
 }
 void daEnFinalBowser_c::endState_WaitForAutoscroll() {}
 
-// RE- SPECT- WALK- WHAT DID YOU SAY?! (Pantera reference)
-
-int number;
-
 void daEnFinalBowser_c::beginState_Walk() {
 	bindAnimChr_and_setUpdateRate("kp_walk", 1, 0.0, 0.75);
 
 	int ab7 = AbsVal(GenerateRandomNumber(7));
 
-	number = AbsVal(GenerateRandomNumber(2));
+	/*number = AbsVal(GenerateRandomNumber(2));
             
-    number = (number % 3);
-    ab7 = (ab7 % 7);
+    number = (number % 3);*/
+    ab7 = ((ab7 % 7) + 1);
 
 	this->fireballTime = (110 * ab7);
-
-	OSReport("Time Until %s: %d\n", (number == 0) ? "Wrenches" : "Fireball", fireballTime);
 }
 void daEnFinalBowser_c::executeState_Walk() {
 	pos.y = -600;
 
+	// Timer for the items to be spawned
+
 	if (this->fireballTime < 0) {
 		if (this->animationChr.isAnimationDone()) {
-            dStateBase_c *state;
-
-            if (number == 0) {
-            	state = &StateID_ThrowShit;
-            } else {
-            	state = &StateID_SpitFire;
-            }
-
-			doStateChange(state);
-
+			doStateChange(&StateID_ThrowShit);
 			return;
 		}
 	} else {
 		fireballTime--;
 	}
 
-	if ((animationChr.getCurrentFrame() == 48) || (animationChr.getCurrentFrame() == 83)) {
+	if (animationChr.getCurrentFrame() == 48) {
 		if (!this->isOutOfView()) { 
-			PlaySound(this, SE_BOSS_KOOPA_L_FOOT_LAVA); 
+			nw4r::snd::SoundHandle handle;
+	        PlaySoundWithFunctionB4(SoundRelatedClass, &handle, SE_BOSS_KOOPA_L_FOOT, 1); 
+			ShakeScreen(StageScreen, 2, 1, 0, 0);
+		}
+	}
+
+	if (animationChr.getCurrentFrame() == 83) {
+		if (!this->isOutOfView()) { 
+			nw4r::snd::SoundHandle handle;
+	        PlaySoundWithFunctionB4(SoundRelatedClass, &handle, SE_BOSS_KOOPA_L_FOOT, 1);
 			ShakeScreen(StageScreen, 2, 1, 0, 0);
 		}
 	}
@@ -644,10 +658,21 @@ void daEnFinalBowser_c::executeState_SpitFire() {
 	}
 
 	if (animationChr.getCurrentFrame() == 63) {
-		PlaySound(this, SE_BOSS_KOOPA_L_FIRE_SHOT);
+		nw4r::snd::SoundHandle handle;
+	    PlaySoundWithFunctionB4(SoundRelatedClass, &handle, SE_BOSS_KOOPA_L_FIRE_SHOT, 1);
 
 		fire = (dEn_c*)CreateActor(261, 0x2, 
-			(Vec){(pos.x + (float)((direction) ? (16 * 5) : -(16 * 5))), (pos.y + 208), (pos.z + 8)}, 0, 0);
+			(Vec){(pos.x + (float)((direction) ? (16 * 5) : -(16 * 5))), (pos.y + 800), (pos.z + 8)}, 0, 0);
+
+		fire->speed.x = -1.5;
+		
+		for (int i = 0; i < 4; i++) {
+			players[i] = GetPlayerOrYoshi(i);
+
+			if (players[i]) {
+				fire->speed.y = -((fire->pos.y - players[i]->pos.y) / 8.0f);
+			}
+		}
 
 		OSReport("FirePos: {X; %f, Y; %f, Z; %f}\n", fire->pos.x, fire->pos.y, fire->pos.z);
 		OSReport("FireSpeed: {X; %f, Y; %f, Z; %f}\n", fire->speed.x, fire->speed.y, fire->speed.z);
@@ -666,6 +691,9 @@ void daEnFinalBowser_c::endState_SpitFire() {
 
 void daEnFinalBowser_c::beginState_ThrowShit() {
 	bindAnimChr_and_setUpdateRate("break", 1, 0.0, 1.0);
+
+	nw4r::snd::SoundHandle handle;
+	PlaySoundWithFunctionB4(SoundRelatedClass, &handle, SE_VOC_KP_L_SWING_S, 1);
 }
 void daEnFinalBowser_c::executeState_ThrowShit() {
 	pos.y = -600;
@@ -676,14 +704,15 @@ void daEnFinalBowser_c::executeState_ThrowShit() {
         return;
 	}
 
+	// Code from Captain Bowser and slightly tweaked to work better here. Thanks, Newer Team! :D
+
 	if (this->animationChr.getCurrentFrame() == 60.0) { // throw back
-		int num = GenerateRandomNumber(4);
-        for (int i = 0; i < this->wrenchAmount; i++) {
+		for (int i = 0; i < 3; i++) {
 			dEn_c *item = (dEn_c*)CreateActor(544, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
 		
 			item->direction = this->direction;
 
-			item->speed.x += (i * 2.5);
+			// item->speed.x += (i * 2.5);
 			item->speed.y -= (i * 2.5);
 
 			OSReport("ItemPos: {X; %f, Y; %f, Z; %f}\n", item->pos.x, item->pos.y, item->pos.z);
@@ -692,13 +721,12 @@ void daEnFinalBowser_c::executeState_ThrowShit() {
 	}
 
 	if (this->animationChr.getCurrentFrame() == 126.0) { // throw front
-		int num = GenerateRandomNumber(4);
-		for (int i = 0; i < this->wrenchAmount; i++) {
+		for (int i = 0; i < 5; i++) {
 			dEn_c *item = (dEn_c*)CreateActor(544, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
 		
 			item->direction = (this->direction ^ 1);
 
-			item->speed.x += (i * 2.5);
+			// item->speed.x += (i * 2.5);
 			item->speed.y -= (i * 2.5);
 		
 			OSReport("ItemPos: {X; %f, Y; %f, Z; %f}\n", item->pos.x, item->pos.y, item->pos.z);
