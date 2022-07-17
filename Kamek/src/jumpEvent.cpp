@@ -40,7 +40,7 @@ int daEnJumpEvent_c::onCreate() {
 int daEnJumpEvent_c::onExecute() {
 	int i;
 
-	if (time < 10) { time++; }
+	if (time < 20) { time++; }
 
     for (i = 0; i < 4; i++) {
         control[i] = GetRemoconMng()->controllers[i];
@@ -49,7 +49,7 @@ int daEnJumpEvent_c::onExecute() {
         if ((control[i]) && (players[i])) {
 			bool start = ((control[i]->nowPressed & WPAD_TWO) || (control[i]->isShaking));
 
-            if ((start) && (reset) && (time == 10) && (!collMgr.isOnTopOfTile())) {
+            if ((start) && (reset) && (time == 20) && (!collMgr.isOnTopOfTile())) {
                 if (dFlagMgr_c::instance->active(event)) {
                     dFlagMgr_c::instance->set(event, 0, false, false, false);
                 } else {

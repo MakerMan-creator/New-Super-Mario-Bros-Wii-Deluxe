@@ -258,7 +258,7 @@ int daEnFinalBowser_c::onExecute() {
 		checkZoneBoundaries(0);
 
 	    if (acState.getCurrentState() == &StateID_Walk) {
-	    	/* if (pos.x > 808.0) {
+	    	if (pos.x > 808.0) {
 	    		if (this->isOutOfView()) {
 	    		    speed.x = (direction) ? 1.0 : -1.0;
 	    		} else {
@@ -286,7 +286,7 @@ int daEnFinalBowser_c::onExecute() {
 	    		}
 	        } else {
 	        	pos.x = 808.0;
-	        } */
+	        }
 	    }
 	    
 	}
@@ -485,7 +485,7 @@ void daEnFinalBowser_c::beginState_Land() {
 		players[i] = GetPlayerOrYoshi(i);
 
 		if (players[i]) {
-			players[i]->speed.y = 1.1;
+			players[i]->speed.y = 5.5;
 		}
 	}
 }
