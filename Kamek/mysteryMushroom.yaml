@@ -1,0 +1,16 @@
+---
+#Replaces Actor 162 EN_PUKUCOIN (Sprite 116)
+
+
+source_files: [../src/mysteryMushroom.cpp]
+hooks:
+  - name: daMysteryMushroomBuild
+    type: add_func_pointer
+    src_addr_pal: 0x80B03618
+    target_func: 'daMysteryMushroom::build()'
+
+  - name: daMysteryMushroomSpriteFileInfo
+    type: add_func_pointer
+    src_addr_pal: 0x8031ad1c
+    target_func: 'MystMushFileList'
+    # 0x8031AB4C + sprite num * 0x4 == offset

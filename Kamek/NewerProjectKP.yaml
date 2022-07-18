@@ -1,7 +1,7 @@
 output_dir: "NewerASM"
 code_address: 0x808D9000
 modules:
-  #- processed/customPlatform.yaml
+  - processed/mysteryMushroom.yaml
   - processed/bossFinalBowser.yaml
   - processed/bossBowserJunior.yaml
   - processed/bossBombKing.yaml
