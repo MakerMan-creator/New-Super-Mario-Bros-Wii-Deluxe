@@ -258,7 +258,7 @@ int daEnFinalBowser_c::onExecute() {
 		checkZoneBoundaries(0);
 
 	    if (acState.getCurrentState() == &StateID_Walk) {
-	    	if (pos.x > 808.0) {
+	    	if (pos.x > 918.0) {
 	    		if (this->isOutOfView()) {
 	    		    speed.x = (direction) ? 1.0 : -1.0;
 	    		} else {
@@ -285,7 +285,7 @@ int daEnFinalBowser_c::onExecute() {
 	    	
 	    		}
 	        } else {
-	        	pos.x = 808.0;
+	        	pos.x = 918.0;
 	        }
 	    }
 	    
@@ -311,6 +311,8 @@ static float manipFourPlayerPos(int id, float pos) {
 	int fromRight = 3 - id;
 	return pos - (fromRight * 20.0f);
 }
+
+extern "C" int CheckExistingPowerup(void * Player);
 
 // ALL the states
 
@@ -348,6 +350,14 @@ void daEnFinalBowser_c::executeState_PlayerLook() {
 			
 			    nw4r::snd::SoundHandle handle;
 			    PlaySoundWithFunctionB4(SoundRelatedClass, &handle, look[Player_ID[i]], 1);
+
+				int pow = CheckExistingPowerup(players[i]);
+                
+				if (pow == 3) {
+					if (handle.Exists()) {
+						handle.SetPitch(2.0f);
+					}
+				}
 		    }
 	    }
 	}
@@ -481,18 +491,38 @@ void daEnFinalBowser_c::beginState_Land() {
 	nw4r::snd::SoundHandle handle;
 	PlaySoundWithFunctionB4(SoundRelatedClass, &handle, SE_BOSS_KOOPA_L_LAND, 1);
 
+	// To make the players react to Bowser's landing
+
 	for (int i = 0; i < 4; i++) {
 		players[i] = GetPlayerOrYoshi(i);
 
 		if (players[i]) {
-			players[i]->speed.y = 5.5;
+			players[i]->speed.y = 20.0;
+
+			SFX shook[4] = {
+                SE_VOC_MA_QUAKE,
+				SE_VOC_LU_QUAKE,
+				SE_VOC_KO_QUAKE,
+				SE_VOC_KO2_QUAKE
+			};
+
+			nw4r::snd::SoundHandle handle;
+	        PlaySoundWithFunctionB4(SoundRelatedClass, &handle, shook[Player_ID[i]], 1);
+
+			int pow = CheckExistingPowerup(players[i]);
+                
+			if (pow == 3) {
+				if (handle.Exists()) {
+					handle.SetPitch(2.0f);
+				}
+			}
 		}
 	}
 }
 void daEnFinalBowser_c::executeState_Land() {
     pos.y = -600;
 
-    if (timer < 3) { ShakeScreen(StageScreen, 2, 1, 0, 0); }
+    if (timer < 5) { ShakeScreen(StageScreen, 2, 1, 0, 0); }
 
 	if (animationChr.isAnimationDone()) {
         doStateChange(&StateID_Roar);
@@ -760,12 +790,14 @@ void daEnFinalBowser_c::beginState_Damage() {
             dFlagMgr_c::instance->set(event, 0, false, false, false);
 		}
 	}
+
+	this->animationChr.setCurrentFrame(9.0);
 }
 void daEnFinalBowser_c::executeState_Damage() {
 	pos.y = -600;
 
 	if (this->animationChr.getCurrentFrame() == 65.0) { // stop it here before it's too late
-		if ((this->health == 15) || (this->health <= 0)) {
+		if (this->health <= 0) {
 			doStateChange(&StateID_Roar);
 		}
 		else {
@@ -836,10 +868,18 @@ void daEnFinalBowser_c::endState_BossEnd() {}
 
 void daEnFinalBowser_c::powBlockActivated(bool isNotMPGP) {}
 
+extern "C" void *EN_LandbarrelPlayerCollision(dEn_c* t, ActivePhysics *apThis, ActivePhysics *apOther);
+
 void daEnFinalBowser_c::playerCollision(ActivePhysics *apThis, ActivePhysics *apOther){
     int p = CheckExistingPowerup(apOther->owner);
     if ((p != 0) && (p != 3)) {
         dAcPy_c__ChangePowerupWithAnimation(apOther->owner, 0);
+
+		char hit = usedForDeterminingStatePress_or_playerCollision(this, apThis, apOther, 0);
+
+		if (hit == 0) {
+			EN_LandbarrelPlayerCollision(this, apThis, apOther);
+		}
     } else { DamagePlayer(this, apThis, apOther); }
 }
 	void daEnFinalBowser_c::spriteCollision(ActivePhysics *apThis, ActivePhysics *apOther){
@@ -889,7 +929,7 @@ void daEnFinalBowser_c::playerCollision(ActivePhysics *apThis, ActivePhysics *ap
         dEn_c *acto = (dEn_c*)apOther->owner;
         u16 name = acto->name;
 
-        OSReport("Item Class and State: %s", acto->acState.getCurrentState()->getName());
+        OSReport("Item Class and State: \"%s\".\n", acto->acState.getCurrentState()->getName());
 
         if ((name == POW_BLOCK) || (name == AC_LIGHT_BLOCK) || (name == AC_PROP_BLOCK)
         	|| (name == SLIDE_BLOCK) || (name == BLOCK_TARU)) {
