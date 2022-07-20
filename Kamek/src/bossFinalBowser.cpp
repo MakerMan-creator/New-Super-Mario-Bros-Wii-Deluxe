@@ -4,6 +4,7 @@
 #include <sfx.h>
 #include <stage.h>
 #include "boss.h"
+#include <playerAnim.h>
 
 
 const char* FinalBowserFileList[] = { 
@@ -30,6 +31,7 @@ public:
 	static daEnFinalBowser_c* build();
 
 	daPlBase_c *players[4];
+	int inputList = 10; // Actually 11, but will be put in an array
 	char *willAutoscroll;
 	int direction;
 	float initPlayerX[4];
@@ -48,6 +50,7 @@ public:
 	int wrenchAmount = 3;
 	bool animSet;
 	int number, num;
+	int endTimer = 0;
 
 	void powBlockActivated(bool isNotMPGP);
 
@@ -160,19 +163,16 @@ int daEnFinalBowser_c::onCreate() {
 	allocator.unlink(); 
 
 	phases = ((settings >> 28 & 0xF) % 2) + 1;
-
-	if (phases == 1) {
-		event = ((settings >> 24 & 0xF) - 1);
-	}
+    event = ((settings >> 24 & 0xF) - 1);
 
 	if (phases == 1) { this->scale = (Vec){0.0,0.0,0.0}; }
 	else { this->scale = (Vec){6.25,6.25,6.25}; }
 
 	ActivePhysics::Info HitMeBaby; 
-	HitMeBaby.xDistToCenter = 0.0; 
-	HitMeBaby.yDistToCenter = 110.0; 
+	HitMeBaby.xDistToCenter = -2.0; 
+	HitMeBaby.yDistToCenter = 140.0; 
 	HitMeBaby.xDistToEdge = 106.0; 
-	HitMeBaby.yDistToEdge = 130.0; 
+	HitMeBaby.yDistToEdge = 130.0;
 	HitMeBaby.category1 = 0x3; 
 	HitMeBaby.category2 = 0x0; 
 	HitMeBaby.bitfield1 = 0x4F; 
@@ -206,26 +206,32 @@ int daEnFinalBowser_c::onCreate() {
 	if (phases == 1) {
 		pos.x = 5856;
 		pos.y = 1664;
+
 		initYPos = pos.y;
 		initXPos = pos.x;
+
 		rot.y = -0x4000;
+
 	    time = (800 << 0xC) - 1;
 	} else {
-        for (int i = 0; i < 2; i++)
-        { rot.y += 0x4000; }
+        rot.y = -0x8000;
 
         pos.x = 11608;
-		pos.y = -5256;
+		pos.y = -4970;
+
+		initYPos = pos.y;
+
+		pos.z -= 90;
 	}
 
 	direction = 0;
 
-	if (phases == 1) { doStateChange(&StateID_PlayerLook); }
-	else { doStateChange(&StateID_BeginPhase2); }
-
 	if (dFlagMgr_c::instance->active(event)) {
 		dFlagMgr_c::instance->set(event, 0, false, false, false);
 	}
+
+	if (phases == 1) { doStateChange(&StateID_PlayerLook); }
+	else { doStateChange(&StateID_BeginPhase2); }
 
 	char *autoscrInfo = ((char*)dBgGm_c::instance) + 0x900AC;
 	this->willAutoscroll = autoscrInfo;
@@ -630,6 +636,10 @@ void daEnFinalBowser_c::beginState_Walk() {
     ab7 = ((ab7 % 7) + 1);
 
 	this->fireballTime = (110 * ab7);
+
+	if (pos.x <= 918.8) {
+		this->fireballTime = 0;
+	}
 }
 void daEnFinalBowser_c::executeState_Walk() {
 	pos.y = -600;
@@ -737,30 +747,84 @@ void daEnFinalBowser_c::executeState_ThrowShit() {
 	// Code from Captain Bowser and slightly tweaked to work better here. Thanks, Newer Team! :D
 
 	if (this->animationChr.getCurrentFrame() == 60.0) { // throw back
-		for (int i = 0; i < 3; i++) {
-			dEn_c *item = (dEn_c*)CreateActor(544, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
+		if (pos.x <= 918.8) {
+			int select = AbsVal(GenerateRandomNumber(2));
+
+			select = (select % 3);
+
+			if (select == 0) {
+				for (int i = 0; i < 3; i++) {
+			        dEn_c *item = (dEn_c*)CreateActor(544, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
 		
-			item->direction = this->direction;
+			        item->direction = (this->direction ^ 1);
 
-			// item->speed.x += (i * 2.5);
-			item->speed.y -= (i * 2.5);
+			        item->speed.y -= (i * 2.5);
+		
+			        OSReport("ItemPos: {X; %f, Y; %f, Z; %f}\n", item->pos.x, item->pos.y, item->pos.z);
+			        OSReport("ItemSpeed: {X; %f, Y; %f, Z; %f}\n", item->speed.x, item->speed.y, item->speed.z);
+		        }
+			} else {
+                dEn_c *item = (dEn_c*)CreateActor(89, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
 
-			OSReport("ItemPos: {X; %f, Y; %f, Z; %f}\n", item->pos.x, item->pos.y, item->pos.z);
-			OSReport("ItemSpeed: {X; %f, Y; %f, Z; %f}\n", item->speed.x, item->speed.y, item->speed.z);
+			    item->speed.x = -3.0;
+			    item->speed.y = 2.0;
+
+				for (int i = 0; i < 15; i++) {
+					item->speed.y += 0.3;
+				}
+			}
+		} else {
+			for (int i = 0; i < 5; i++) {
+			    dEn_c *item = (dEn_c*)CreateActor(544, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
+		
+			    item->direction = (this->direction ^ 1);
+
+			    item->speed.y -= (i * 2.5);
+		
+			    OSReport("ItemPos: {X; %f, Y; %f, Z; %f}\n", item->pos.x, item->pos.y, item->pos.z);
+			    OSReport("ItemSpeed: {X; %f, Y; %f, Z; %f}\n", item->speed.x, item->speed.y, item->speed.z);
+		    }
 		}
 	}
 
 	if (this->animationChr.getCurrentFrame() == 126.0) { // throw front
-		for (int i = 0; i < 5; i++) {
-			dEn_c *item = (dEn_c*)CreateActor(544, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
-		
-			item->direction = (this->direction ^ 1);
+		if (pos.x <= 918.8) {
+			int select = AbsVal(GenerateRandomNumber(2));
 
-			// item->speed.x += (i * 2.5);
-			item->speed.y -= (i * 2.5);
+			select = (select % 3);
+
+			if (select == 0) {
+				for (int i = 0; i < 5; i++) {
+			        dEn_c *item = (dEn_c*)CreateActor(544, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
 		
-			OSReport("ItemPos: {X; %f, Y; %f, Z; %f}\n", item->pos.x, item->pos.y, item->pos.z);
-			OSReport("ItemSpeed: {X; %f, Y; %f, Z; %f}\n", item->speed.x, item->speed.y, item->speed.z);
+			        item->direction = (this->direction ^ 1);
+
+			        item->speed.y -= (i * 2.5);
+		
+			        OSReport("ItemPos: {X; %f, Y; %f, Z; %f}\n", item->pos.x, item->pos.y, item->pos.z);
+			        OSReport("ItemSpeed: {X; %f, Y; %f, Z; %f}\n", item->speed.x, item->speed.y, item->speed.z);
+		        }
+			} else {
+                dEn_c *item = (dEn_c*)CreateActor(89, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
+
+			    item->speed.x = -3.0;
+			    item->speed.y = 2.0;
+
+				for (int i = 0; i < 15; i++) {
+					item->speed.y += 0.3;
+				}
+			}
+		} else {
+			for (int i = 0; i < 5; i++) {
+			    dEn_c *item = (dEn_c*)CreateActor(544, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
+		
+			    item->direction = (this->direction ^ 1);
+
+			    item->speed.y -= (i * 2.5);
+		
+			    OSReport("ItemPos: {X; %f, Y; %f, Z; %f}\n", item->pos.x, item->pos.y, item->pos.z);
+			    OSReport("ItemSpeed: {X; %f, Y; %f, Z; %f}\n", item->speed.x, item->speed.y, item->speed.z);
+		    }
 		}
 	}
 
@@ -842,8 +906,37 @@ void daEnFinalBowser_c::executeState_EndPhase1() {
 }
 void daEnFinalBowser_c::endState_EndPhase1() {}
 
-void daEnFinalBowser_c::beginState_BeginPhase2() {}
+void MatchInput(Remocon *con, int& index, int button, int playerIndex) {
+    con = GetActiveRemocon();
+
+	if (con) {
+		if (index > 1) {
+            if (con->heldButtons & button) {
+				index--;
+			}
+			else {
+				index = 10;
+			}
+		}
+		else {
+			if (con->isShaking) {
+				index--;
+			}
+            else {
+				index = 10;
+			}
+		}
+	}
+}
+
+void daEnFinalBowser_c::beginState_BeginPhase2() {
+	bindAnimChr_and_setUpdateRate("kp_death2", 1, 0.0, 0.1);
+	this->aPhysics.addToList();
+	timer = 0;
+}
 void daEnFinalBowser_c::executeState_BeginPhase2() {
+	OSReport("Y Pos: %f\n", pos.y);
+
 	if (dFlagMgr_c::instance->active(event)) {
         doStateChange(&StateID_BossEnd);
 	}
@@ -852,7 +945,37 @@ void daEnFinalBowser_c::executeState_BeginPhase2() {
 		animationChr.setCurrentFrame(0.0);
 	}
 
-	speed.y = 1.0;
+	float anim = animationChr.getCurrentFrame();
+
+	if ((anim == 15) || (anim == 42)) {
+        nw4r::snd::SoundHandle fence;
+        PlaySoundWithFunctionB4(SoundRelatedClass, &fence, SE_PLY_ATTACK_FENCE, 1);
+
+		dEn_c *item = (dEn_c*)CreateActor(544, (direction ^ 1), (Vec){(float)((direction) ? (pos.x + 256) : (pos.x - 256)), (pos.y+144), (pos.z + 8)}, 0, 0);
+		
+		OSReport("ItemPos: {X; %f, Y; %f, Z; %f}\n", item->pos.x, item->pos.y, item->pos.z);
+		OSReport("ItemSpeed: {X; %f, Y; %f, Z; %f}\n", item->speed.x, item->speed.y, item->speed.z);
+	}
+
+	if (pos.y >= -1900) {
+		if (!dFlagMgr_c::instance->active(37)) {
+			dFlagMgr_c::instance->set(37, 0, true, false, false);
+		}
+
+		pos.y = -1900;
+
+		return;
+	}
+
+    /*
+	if (timer < 335) {
+		timer++;
+
+		return;
+	}
+	*/
+
+	speed.y = 0.4;
 
 	pos.y += speed.y;
 }
@@ -860,8 +983,156 @@ void daEnFinalBowser_c::endState_BeginPhase2() {}
 
 extern "C" int SmoothRotation(short* rot, u16 amt, int unk2);
 
-void daEnFinalBowser_c::beginState_BossEnd() {}
-void daEnFinalBowser_c::executeState_BossEnd() {}
+bool ShrinkBoss(float endScale, daEnFinalBowser_c* actor) {
+    if (actor->scale.x <= endScale) {
+		actor->scale.x = endScale;
+
+		actor->scale = (Vec){actor->scale.x, actor->scale.x, actor->scale.x};
+
+		return true;
+	}
+
+	actor->pos.y += 0.5;
+
+	actor->scale.x -= (1.0 / 80.0);
+
+	actor->scale = (Vec) {actor->scale.x, actor->scale.x, actor->scale.x};
+
+	return false;
+}
+
+void daEnFinalBowser_c::beginState_BossEnd() {
+	this->removeMyActivePhysics();
+	StopBGMMusic();
+
+	WLClass::instance->_4 = 5;
+	WLClass::instance->_8 = 0;
+	dStage32C_c::instance->freezeMarioBossFlag = 1;
+
+	dFlagMgr_c::instance->set(36, 0, false, false, false);
+
+	timer = 0;
+
+	nw4r::snd::SoundHandle roar;
+    PlaySoundWithFunctionB4(SoundRelatedClass, &roar, SE_VOC_KP_L_SURPRISED_LAVA, 1);
+
+	for (int i = 0; i < 4; i++) {
+		players[i] = GetPlayerOrYoshi(i);
+
+		if (players[i]) {
+			players[i]->direction = (int)(players[i]->pos.x < this->pos.x);
+		}
+	}
+}
+
+extern "C" int SmoothRotation(short* rot, u16 amt, int unk2);
+
+void daEnFinalBowser_c::executeState_BossEnd() {
+	if (timer > 330) {
+		if (timer == 331) {
+            bindAnimChr_and_setUpdateRate("kp_death1", 1, 0.0, 2.5);
+		}
+
+		bool shrunk = ShrinkBoss(0.125, this);
+
+		if (shrunk) {
+			//if (timerAlt > 100) {
+				if (pos.y > -1800) {
+					speed.y = -8.0;
+
+					pos.y += speed.y;
+
+					return;
+				}
+				
+				{
+                    if (endTimer > 200) {
+						for (int i = 0; i < 4; i++) {
+                            players[i] = GetPlayerOrYoshi(i);
+
+							if (players[i]) {
+								SmoothRotation(&players[i]->rot.y, 
+								(players[i]->direction) ? 0x2800 : 0xD800, 0x800);
+							}
+						}
+
+						if (endTimer == 201) {
+							nw4r::snd::SoundHandle clear;
+                            PlaySoundWithFunctionB4(SoundRelatedClass, &clear, STRM_BGM_LAST_BOSS2_CLEAR, 1);
+						}
+						else if ((endTimer > 800) && (endTimer < 1000)) {
+							if (endTimer == 801) {
+								SFX cheers[4] = {
+								    SE_VOC_MA_CLEAR_LAST_BOSS,
+				                    SE_VOC_LU_CLEAR_LAST_BOSS,
+				                    SE_VOC_KO_CLEAR_LAST_BOSS,
+				                    SE_VOC_KO2_CLEAR_LAST_BOSS
+							    };
+
+							    for (int i = 0; i < 4; i++) {
+								players[i] = GetPlayerOrYoshi(i);
+
+								if (players[i]) {
+									nw4r::snd::SoundHandle cheering;
+                                    PlaySoundWithFunctionB4(SoundRelatedClass, &cheering, cheers[Player_ID[i]], 1); 
+								}
+							}
+
+							for (int i = 0; i < 4; i++) {
+								players[i] = GetPlayerOrYoshi(i);
+
+								if (players[i]) {
+									dPlayerModelHandler_c *pmh = (dPlayerModelHandler_c*)(((u32)players[i]) + 0x2A60);
+
+				                    int whatAnim = goal_puton_capB;
+				                    if (pmh->mdlClass->powerup_id == 4)
+					                    whatAnim = goal_puton_capB;
+				                    else if (pmh->mdlClass->powerup_id == 5)
+					                    whatAnim = goal_puton_capC;
+				                    pmh->mdlClass->startAnimation(whatAnim, 1.0f, 0.0f, 0.0f);
+								}
+							}
+						}
+						else if (endTimer == 1100) {
+                            ExitStage(RESTART_CRSIN, 0, BEAT_LEVEL, MARIO_WIPE);
+
+							for (int i = 0; i < 4; i++)
+							{
+							    players[i] = GetPlayerOrYoshi(i);
+
+								if (players[i] == 0) { continue; }
+
+				                if (Player_Lives[i] == 0) { Player_Lives[i] = 5; }
+							}
+						}
+					}
+
+					endTimer++;
+				}
+			//} 
+
+			for (int i = 0; i < 40; i++) { rot.x -= 0x50; }
+
+			if (timerAlt == 100) {
+				nw4r::snd::SoundHandle roar;
+                PlaySoundWithFunctionB4(SoundRelatedClass, &roar, SE_VOC_KP_L_FALL, 1);
+
+				if (roar.Exists()) {
+					roar.SetPitch(2.0);
+				}
+			}
+
+			//timerAlt++;
+		}
+	} else {
+		this->animationChr.setCurrentFrame(animationChr.getCurrentFrame());
+
+		ShakeScreen(StageScreen, 2, 1, 0, 0);
+	}	
+}
+
+timer++;
+}
 void daEnFinalBowser_c::endState_BossEnd() {}
 
 // Collisions
@@ -872,20 +1143,14 @@ extern "C" void *EN_LandbarrelPlayerCollision(dEn_c* t, ActivePhysics *apThis, A
 
 void daEnFinalBowser_c::playerCollision(ActivePhysics *apThis, ActivePhysics *apOther){
     int p = CheckExistingPowerup(apOther->owner);
-    if ((p != 0) && (p != 3)) {
-        dAcPy_c__ChangePowerupWithAnimation(apOther->owner, 0);
-
-		char hit = usedForDeterminingStatePress_or_playerCollision(this, apThis, apOther, 0);
-
-		if (hit == 0) {
-			EN_LandbarrelPlayerCollision(this, apThis, apOther);
-		}
-    } else { DamagePlayer(this, apThis, apOther); }
+    if ((p != 0) && (p != 3)) { dAcPy_c__ChangePowerupWithAnimation(apOther->owner, 0); } 
+	else { DamagePlayer(this, apThis, apOther); }
 }
 	void daEnFinalBowser_c::spriteCollision(ActivePhysics *apThis, ActivePhysics *apOther){
 		dEn_c *obj = ((dEn_c*)apOther->owner);
 
-		if ((obj->name == AC_BG_LAVA) || (obj->name == AC_BG_POISON)) {
+		if ((obj->name == AC_BG_LAVA) || (obj->name == AC_BG_POISON) || (obj->name == AC_LIFT_RIDE_VMOVE)
+		    || (obj->name == AC_LIFT_RIDE_HMOVE)) {
 			this->pos.z = (obj->pos.z - 2);
 			return;
 		}
@@ -893,6 +1158,21 @@ void daEnFinalBowser_c::playerCollision(ActivePhysics *apThis, ActivePhysics *ap
 		if ((obj->name == EN_HAMMERBROS) || (obj->name == EN_FIREBROS) || (obj->name == EN_BIGKARON) || 
 			(obj->name == EN_KARON)) {
 			obj->collisionCat9_RollingObject(apThis, apOther);
+		}
+
+		u16 name = obj->name;
+
+		if ((name == POW_BLOCK) || (name == AC_LIGHT_BLOCK) || (name == AC_PROP_BLOCK)
+        	|| (name == SLIDE_BLOCK) || (name == BLOCK_TARU)) {
+			S16Vec nullRot = {0,0,0};
+		    Vec oneVec = {1.0f, 1.0f, 1.0f};
+
+		    SpawnEffect("Wm_en_obakedoor_sm", 0, &obj->pos, &nullRot, &oneVec);
+		    SpawnEffect("Wm_mr_yoshistep", 0, &obj->pos, &nullRot, &oneVec);
+
+		    PlaySound(this, SE_OBJ_WOOD_BOX_BREAK);
+
+            obj->Delete(1);
 		}
 	}
 	void daEnFinalBowser_c::yoshiCollision(ActivePhysics *apThis, ActivePhysics *apOther){
@@ -950,7 +1230,7 @@ void daEnFinalBowser_c::playerCollision(ActivePhysics *apThis, ActivePhysics *ap
         		return false;
         	}
 
-        	if (name == POW_BLOCK) {
+        	if (name == AC_LIGHT_BLOCK) {
         		if (this->health <= 0) {
         	        if (acState.getCurrentState() != &StateID_EndPhase1) { doStateChange(&StateID_EndPhase1); }
         	    } else {

@@ -35,6 +35,7 @@ public:
 
 	bool done = false;
     POWERUPS num;
+	int playerID;
 
 	void playerCollision(ActivePhysics *apThis, ActivePhysics *apOther);
 	void spriteCollision(ActivePhysics *apThis, ActivePhysics *apOther);
@@ -101,6 +102,12 @@ int daMysteryMushroom::onCreate() {
 	this->scale.y = 1.0; 
 	this->scale.z = 1.0;
 
+    this->playerID = ((settings >> 28 & 0xF) % 4);
+
+	if (GetPlayerOrYoshi(playerID) == 0) {
+		done = true;
+		this->Delete(1);
+	}
 
 	ActivePhysics::Info HitMeBaby; 
 	HitMeBaby.xDistToCenter = 0.0; 
@@ -153,6 +160,8 @@ int daMysteryMushroom::onExecute() {
 	if (this->animationChr.isAnimationDone()) {
 		this->animationChr.setCurrentFrame(0.0);
 	}
+
+	rot.y -= 0x100;
 
 	return true;
 }
