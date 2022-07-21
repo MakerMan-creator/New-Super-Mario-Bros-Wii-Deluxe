@@ -51,6 +51,7 @@ public:
 	bool animSet;
 	int number, num;
 	int endTimer = 0;
+	bool exitedFlag;
 
 	void powBlockActivated(bool isNotMPGP);
 
@@ -361,7 +362,7 @@ void daEnFinalBowser_c::executeState_PlayerLook() {
                 
 				if (pow == 3) {
 					if (handle.Exists()) {
-						handle.SetPitch(2.0f);
+						handle.SetPitch(1.5f);
 					}
 				}
 		    }
@@ -519,7 +520,7 @@ void daEnFinalBowser_c::beginState_Land() {
                 
 			if (pow == 3) {
 				if (handle.Exists()) {
-					handle.SetPitch(2.0f);
+					handle.SetPitch(1.5f);
 				}
 			}
 		}
@@ -1020,7 +1021,8 @@ void daEnFinalBowser_c::beginState_BossEnd() {
 		players[i] = GetPlayerOrYoshi(i);
 
 		if (players[i]) {
-			players[i]->direction = (int)(players[i]->pos.x < this->pos.x);
+			players[i]->direction = ((int)(players[i]->pos.x > this->pos.x) ^ 1);
+			players[i]->setFlag(0x24);
 		}
 	}
 }
@@ -1030,13 +1032,17 @@ extern "C" int SmoothRotation(short* rot, u16 amt, int unk2);
 void daEnFinalBowser_c::executeState_BossEnd() {
 	if (timer > 330) {
 		if (timer == 331) {
-            bindAnimChr_and_setUpdateRate("kp_death1", 1, 0.0, 2.5);
+            bindAnimChr_and_setUpdateRate("kp_death1", 1, 0.0, 1.0);
 		}
+
+		if (animationChr.isAnimationDone()) {
+		    animationChr.setCurrentFrame(0.0);
+	    }
 
 		bool shrunk = ShrinkBoss(0.125, this);
 
 		if (shrunk) {
-			//if (timerAlt > 100) {
+			if (timerAlt > 100) {
 				if (pos.y > -1800) {
 					speed.y = -8.0;
 
@@ -1047,21 +1053,12 @@ void daEnFinalBowser_c::executeState_BossEnd() {
 				
 				{
                     if (endTimer > 200) {
-						for (int i = 0; i < 4; i++) {
-                            players[i] = GetPlayerOrYoshi(i);
-
-							if (players[i]) {
-								SmoothRotation(&players[i]->rot.y, 
-								(players[i]->direction) ? 0x2800 : 0xD800, 0x800);
-							}
-						}
-
 						if (endTimer == 201) {
 							nw4r::snd::SoundHandle clear;
                             PlaySoundWithFunctionB4(SoundRelatedClass, &clear, STRM_BGM_LAST_BOSS2_CLEAR, 1);
 						}
-						else if ((endTimer > 800) && (endTimer < 1000)) {
-							if (endTimer == 801) {
+						else if ((endTimer > 660) && (endTimer < 1000)) {
+							if (endTimer == 661) {
 								SFX cheers[4] = {
 								    SE_VOC_MA_CLEAR_LAST_BOSS,
 				                    SE_VOC_LU_CLEAR_LAST_BOSS,
@@ -1070,31 +1067,36 @@ void daEnFinalBowser_c::executeState_BossEnd() {
 							    };
 
 							    for (int i = 0; i < 4; i++) {
-								players[i] = GetPlayerOrYoshi(i);
+								    players[i] = GetPlayerOrYoshi(i);
 
-								if (players[i]) {
-									nw4r::snd::SoundHandle cheering;
-                                    PlaySoundWithFunctionB4(SoundRelatedClass, &cheering, cheers[Player_ID[i]], 1); 
-								}
-							}
+								    if (players[i]) {
+										players[i]->setAnimePlayWithAnimID(dm_glad);
 
-							for (int i = 0; i < 4; i++) {
-								players[i] = GetPlayerOrYoshi(i);
+									    nw4r::snd::SoundHandle cheering;
+                                        PlaySoundWithFunctionB4(SoundRelatedClass, &cheering, cheers[Player_ID[i]], 1); 
 
-								if (players[i]) {
-									dPlayerModelHandler_c *pmh = (dPlayerModelHandler_c*)(((u32)players[i]) + 0x2A60);
-
-				                    int whatAnim = goal_puton_capB;
-				                    if (pmh->mdlClass->powerup_id == 4)
-					                    whatAnim = goal_puton_capB;
-				                    else if (pmh->mdlClass->powerup_id == 5)
-					                    whatAnim = goal_puton_capC;
-				                    pmh->mdlClass->startAnimation(whatAnim, 1.0f, 0.0f, 0.0f);
-								}
-							}
+										if (cheering.Exists()) {
+                                            if (CheckExistingPowerup(players[i]) == 3) {
+												cheering.SetPitch(1.5);
+											}
+										}
+								    }
+							    }
 						}
-						else if (endTimer == 1100) {
-                            ExitStage(RESTART_CRSIN, 0, BEAT_LEVEL, MARIO_WIPE);
+						
+					}
+					    else if (endTimer == 1100) {
+							RESTART_CRSIN_LevelStartStruct.purpose = 0;
+			                RESTART_CRSIN_LevelStartStruct.world1 = 7;
+			                RESTART_CRSIN_LevelStartStruct.world2 = 7;
+			                RESTART_CRSIN_LevelStartStruct.level1 = 40;
+			                RESTART_CRSIN_LevelStartStruct.level2 = 40;
+			                RESTART_CRSIN_LevelStartStruct.areaMaybe = 0;
+			                RESTART_CRSIN_LevelStartStruct.entrance = 0xFF;
+			                RESTART_CRSIN_LevelStartStruct.unk4 = 0; // load replay
+			                DontShowPreGame = true;
+			                ExitStage(RESTART_CRSIN, 0, BEAT_LEVEL, MARIO_WIPE);
+			                exitedFlag = true;
 
 							for (int i = 0; i < 4; i++)
 							{
@@ -1105,29 +1107,32 @@ void daEnFinalBowser_c::executeState_BossEnd() {
 				                if (Player_Lives[i] == 0) { Player_Lives[i] = 5; }
 							}
 						}
-					}
 
-					endTimer++;
+					
 				}
-			//} 
+				
+				endTimer++;
+			} 
 
 			for (int i = 0; i < 40; i++) { rot.x -= 0x50; }
-
-			if (timerAlt == 100) {
+		}
+		    if (timerAlt == 100) {
 				nw4r::snd::SoundHandle roar;
                 PlaySoundWithFunctionB4(SoundRelatedClass, &roar, SE_VOC_KP_L_FALL, 1);
 
 				if (roar.Exists()) {
-					roar.SetPitch(2.0);
+					roar.SetPitch(1.5);
 				}
 			}
-
-			//timerAlt++;
-		}
+		
+		timerAlt++;
 	} else {
 		this->animationChr.setCurrentFrame(animationChr.getCurrentFrame());
 
 		ShakeScreen(StageScreen, 2, 1, 0, 0);
+
+		nw4r::snd::SoundHandle magic;
+        PlaySoundWithFunctionB4(SoundRelatedClass, &magic, SE_BOSS_KAMECK_FLY_MAGIC, 1);
 	}	
 }
 
