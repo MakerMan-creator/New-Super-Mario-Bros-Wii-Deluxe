@@ -3,7 +3,7 @@
 #include <g3dhax.h>
 #include <sfx.h>
 
-const char* NinjiArcNameList [] = { 
+const char* NinjiArcNameList [] = {
     "ninji",
     NULL
 };
@@ -38,18 +38,18 @@ public:
     void yoshiCollision(ActivePhysics *apThis, ActivePhysics *apOther);
 	void spriteCollision(ActivePhysics *apThis, ActivePhysics *apOther);
 
-	bool collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther); 
-    bool collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther); 
-	bool collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther); 
+	bool collisionCat3_StarPower(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat5_Mario(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther);
+    bool collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat2_IceBall_15_YoshiIce(ActivePhysics *apThis, ActivePhysics *apOther);
+	bool collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther);
 	bool collisionCat14_YoshiFire(ActivePhysics *apThis, ActivePhysics *apOther);
 
 	bool calculateTileCollisions();
@@ -112,26 +112,26 @@ int daNinji_c::onCreate() {
         this->direction -= (this->direction - 1);
 	}
 
-	allocator.unlink(); 
+	allocator.unlink();
 
 	ActivePhysics::Info HitMeBaby;
 
-	HitMeBaby.xDistToCenter = 0.0; 
-	HitMeBaby.yDistToCenter = 11.0; 
-	HitMeBaby.xDistToEdge = 7.0; 
-	HitMeBaby.yDistToEdge = 7.0; 
-	HitMeBaby.category1 = 0x3; 
-	HitMeBaby.category2 = 0x0; 
-	HitMeBaby.bitfield1 = 0x4F; 
-	HitMeBaby.bitfield2 = 0xFFDFEFAE; 
+	HitMeBaby.xDistToCenter = 0.0;
+	HitMeBaby.yDistToCenter = 11.0;
+	HitMeBaby.xDistToEdge = 7.0;
+	HitMeBaby.yDistToEdge = 7.0;
+	HitMeBaby.category1 = 0x3;
+	HitMeBaby.category2 = 0x0;
+	HitMeBaby.bitfield1 = 0x4F;
+	HitMeBaby.bitfield2 = 0xFFDFEFAE;
 	HitMeBaby.unkShort1C = 0;
 
-	HitMeBaby.callback = &dEn_c::collisionCallback; 
-	this->aPhysics.initWithStruct(this, &HitMeBaby); 
-	this->aPhysics.addToList(); 
+	HitMeBaby.callback = &dEn_c::collisionCallback;
+	this->aPhysics.initWithStruct(this, &HitMeBaby);
+	this->aPhysics.addToList();
 
-	this->scale.x = 1.0; 
-	this->scale.y = 1.0; 
+	this->scale.x = 1.0;
+	this->scale.y = 1.0;
 	this->scale.z = 1.0;
 
 	this->initXpos = this->pos.x;
@@ -158,7 +158,7 @@ int daNinji_c::onCreate() {
 
 	bindAnimChr_and_setUpdateRate("walk", 1, 0.0, 1.0);
 
-    //State switching 
+    //State switching
     if (this->type == 2) {
 		OSReport("Time to start hopping!\n");
 		doStateChange(&StateID_Hop);
@@ -308,7 +308,7 @@ void daNinji_c::beginState_Idle() {
 }
 void daNinji_c::executeState_Idle() {
 	this->calculateTileCollisions();
-	if (this->type == 0) { 
+	if (this->type == 0) {
 	    doStateChange(&StateID_Hop);
 	} else {
 		//Can't switch state while not being on the ground
@@ -368,6 +368,9 @@ void daNinji_c::playerCollision(ActivePhysics *apThis, ActivePhysics *apOther) {
     } else if (hitType == 0) {
         this->_vf220(apOther->owner);
     }
+	deathInfo.isDead = 0;
+	this->flags_4FC |= (1 << (31 - 7));
+	this->counter_504[apOther->owner->which_player] = 0;
 }
 void daNinji_c::yoshiCollision(ActivePhysics *apThis, ActivePhysics *apOther) {
     this->playerCollision(apThis, apOther);
@@ -398,22 +401,22 @@ bool daNinji_c::collisionCatD_Drill(ActivePhysics *apThis, ActivePhysics *apOthe
 }
 bool daNinji_c::collisionCat8_FencePunch(ActivePhysics *apThis, ActivePhysics *apOther) {
     return true;
-} 
+}
 bool daNinji_c::collisionCat7_GroundPound(ActivePhysics *apThis, ActivePhysics *apOther) {
     return this->collisionCat3_StarPower(apThis, apOther);
 }
 bool daNinji_c::collisionCat7_GroundPoundYoshi(ActivePhysics *apThis, ActivePhysics *apOther) {
     return this->collisionCat3_StarPower(apThis, apOther);
-} 
+}
 bool daNinji_c::collisionCatA_PenguinMario(ActivePhysics *apThis, ActivePhysics *apOther) {
     return this->collisionCat3_StarPower(apThis, apOther);
-} 
+}
 bool daNinji_c::collisionCat11_PipeCannon(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return this->collisionCat3_StarPower(apThis, apOther);
-} 
+}
 bool daNinji_c::collisionCat9_RollingObject(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return this->collisionCat3_StarPower(apThis, apOther);
-} 
+}
 bool daNinji_c::collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, ActivePhysics *apOther) {
 	StageE4::instance->spawnCoinJump(pos, 0, 1, 0);
 	return this->collisionCat3_StarPower(apThis, apOther);
@@ -421,7 +424,7 @@ bool daNinji_c::collisionCat1_Fireball_E_Explosion(ActivePhysics *apThis, Active
 bool daNinji_c::collisionCat13_Hammer(ActivePhysics *apThis, ActivePhysics *apOther) {
 	StageE4::instance->spawnCoinJump(pos, 0, 3, 0);
 	return this->collisionCat3_StarPower(apThis, apOther);
-} 
+}
 bool daNinji_c::collisionCat14_YoshiFire(ActivePhysics *apThis, ActivePhysics *apOther) {
 	return this->collisionCat1_Fireball_E_Explosion(apThis, apOther);
 }
@@ -476,7 +479,7 @@ bool daNinji_c::calculateTileCollisions() {
 	}
 	collMgr.calculateAdjacentCollision(0);
 	// Switch Direction
-	if (collMgr.outputMaybe & (0x15 << direction)) {
+	if (collMgr.outputMaybe & (0x15 << (direction ^ 1))) {
 		if (collMgr.isOnTopOfTile()) {
 			this->isBouncing = true;
 		}

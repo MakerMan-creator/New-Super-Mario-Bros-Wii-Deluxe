@@ -261,8 +261,6 @@ int daMrSun_c::onCreate() {
 	char eventNum	= (this->settings >> 16) & 0xFF;
 
 	this->eventFlag = (u64)1 << (eventNum - 1);
-
-
 	
 	doStateChange(&StateID_Follow);
 

@@ -65,7 +65,7 @@ int daCustomShell::onCreate() {
 	HitMeBaby.category1 = 0x3;
 	HitMeBaby.category2 = 0x0;
 	HitMeBaby.bitfield1 = 0x4F;
-	HitMeBaby.bitfield2 = 0xFFFFEFAE;
+	HitMeBaby.bitfield2 = 0xFFFBEFAE;
 	HitMeBaby.unkShort1C = 0;
 	HitMeBaby.callback = &dEn_c::collisionCallback;
 	this->aPhysics.initWithStruct(this, &HitMeBaby);
@@ -76,8 +76,6 @@ int daCustomShell::onCreate() {
 	this->scale.z = 1.0;
 
 	if (!this->bjrThrown) {
-        //pos.y += 32;
-
         direction = (((this->settings >> 28) % 2) ^ 1);
 	}
 
@@ -138,7 +136,6 @@ void daCustomShell::beginState_Gone() {
     shell->scale.z = 1.0;
 
     shell->speed.x = (direction) ? -1.0 : 1.0;
-    shell->speed.y = 1.0;
 
 	shell->rot.y = this->rot.y; // REALLY sell the illusion
 
@@ -165,7 +162,6 @@ void daCustomShell::spriteCollision(ActivePhysics *apThis, ActivePhysics *apOthe
 
     if (block->name == EN_BIRIKYU_MAKER) {
         return;
-
     }
 
     block->collisionCat9_RollingObject(apThis, apOther);

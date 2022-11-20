@@ -52,6 +52,7 @@ public:
 	int number, num;
 	int endTimer = 0;
 	bool exitedFlag;
+	int inputsSet = 10;
 
 	void powBlockActivated(bool isNotMPGP);
 
@@ -907,7 +908,11 @@ void daEnFinalBowser_c::executeState_EndPhase1() {
 }
 void daEnFinalBowser_c::endState_EndPhase1() {}
 
-void MatchInput(Remocon *con, int& index, int button, int playerIndex) {
+void MatchInput(Remocon *con, int& index, int button) {
+	if (index <= 0) {
+        return;
+	}
+
     con = GetActiveRemocon();
 
 	if (con) {
@@ -915,16 +920,10 @@ void MatchInput(Remocon *con, int& index, int button, int playerIndex) {
             if (con->heldButtons & button) {
 				index--;
 			}
-			else {
-				index = 10;
-			}
 		}
-		else {
+		else if (index > 0) {
 			if (con->isShaking) {
 				index--;
-			}
-            else {
-				index = 10;
 			}
 		}
 	}
@@ -1133,7 +1132,7 @@ void daEnFinalBowser_c::executeState_BossEnd() {
 
 		nw4r::snd::SoundHandle magic;
         PlaySoundWithFunctionB4(SoundRelatedClass, &magic, SE_BOSS_KAMECK_FLY_MAGIC, 1);
-	}	
+	}
 }
 
 timer++;

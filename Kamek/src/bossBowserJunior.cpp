@@ -223,7 +223,7 @@ void daBowserJr::executeState_Attack() {
         //this->koopa->speed.x = (direction) ? -1.0 : 1.0;
         this->koopa->speed.y = 1.0;
 
-		daCustomShell *troopa = (daCustomShell*)koopa;
+		daCustomShell *troopa = (daCustomShell*)koopa; // Access its class
 
 		troopa->direction = this->direction;
 		troopa->bjrThrown = true;
