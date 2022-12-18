@@ -148,7 +148,6 @@ int daSpikeBlock_c::onExecute() {
 	blockUpdate();
 
     tile.setVars(scale.x);
-	tile.tileNumber = (wasHit) ? 50 : 49;
 
 	if (!wasHit) {
 	    HitMeBaby.callback = &dEn_c::collisionCallback;
