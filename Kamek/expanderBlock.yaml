@@ -1,0 +1,10 @@
+---
+#Replaces Actor 329 AC_ITEM_KEY (Sprite 77)
+
+
+source_files: [../src/expanderBlock.cpp]
+hooks:
+  - name: daExpanderBlockBuild
+    type: add_func_pointer
+    src_addr_pal: 0x8095E108
+    target_func: 'daExpanderBlock::build()'

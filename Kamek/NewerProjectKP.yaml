@@ -1,6 +1,9 @@
 output_dir: "NewerASM"
 code_address: 0x808D9000
 modules:
+  - processed/expanderBlock.yaml
+  - processed/spikeBlock.yaml
+  - processed/thwimp.yaml
   - processed/mysteryMushroom.yaml
   - processed/bossFinalBowser.yaml
   - processed/bossBowserJunior.yaml
@@ -8,7 +11,7 @@ modules:
   - processed/jumpingPiranha.yaml
   - processed/jumpEvent.yaml
   - processed/beeper.yaml
-  - processed/balloonBoo.yaml
+  # - processed/balloonBoo.yaml
   - processed/ninji.yaml
   - processed/prolog.yaml
   - processed/corseClear.yaml
@@ -29,7 +32,7 @@ modules:
   - processed/layouthax.yaml
   - processed/animtiles.yaml
   - processed/soundPlayer.yaml
-  - processed/bowserKey.yaml
+  #- processed/bowserKey.yaml
   - processed/levelspecial.yaml
   - processed/mrsun.yaml
   - processed/firelaser.yaml
