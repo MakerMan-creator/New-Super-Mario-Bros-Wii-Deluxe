@@ -82,6 +82,7 @@ const char* SongNameList [] = {
 	"CRISIS_CITY", // ID 158
 	"COURTYARD", // ID 159
 	"RUINS", // 160
+	"GHOST_CAVE", //161
 	NULL
 };
 
